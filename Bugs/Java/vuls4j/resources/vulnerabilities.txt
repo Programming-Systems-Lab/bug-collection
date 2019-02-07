@@ -1,0 +1,38 @@
+Proj Tomcat
+URL https://github.com/apache/tomcat85.git
+https://github.com/apache/tomcat80/commit/25d3c0d93190ef165ecd6c744bc15b5059abfa8f
+https://github.com/apache/tomcat80/commit/e070a31ec81b56377822e44883c64abb41f36a3b
+https://github.com/apache/tomcat85/commit/3242efea525df01d15da6e90ea69a9a21b10b454
+https://github.com/apache/tomcat85/commit/29893e66111d33cfe99dd01cb146317c0c262ef4
+https://github.com/apache/tomcat80/commit/ec10b8c785d1db91fe58946436f854dde04410fd
+https://github.com/apache/tomcat85/commit/494429ca210641b6b7affe89a2b0a6c0ff70109b
+https://github.com/apache/tomcat85/commit/2cb9c724e6a2d15a5bc909c4bf1ab9dfc26fa362
+https://github.com/apache/tomcat85/commit/f5e06b8c743b1daa9eb5e817863958b6b320e044
+https://github.com/apache/tomcat80/commit/6d73b079c55ee25dea1bbd0556bb568a4247dacd
+https://github.com/apache/tomcat85/commit/0f7b9465d594b9814e1853d1e3a6e3aa51a21610
+https://github.com/apache/tomcat80/commit/3dd2fec73e0de1edc1d3eb1c52a01255fdfc84e7
+https://github.com/apache/tomcat85/commit/9601a937ff3b7ef5d04b2a0e950d0e44e1bb4cbd
+https://github.com/breaktoprotect/CVE-2017-12615 --> tomcat7
+
+TOMCAT with available exploits:
+CVE-2017-12617, 8.0.47, 8.0.48
+CVE-2017-12617, 8.5.22, 8.5.23
+
+
+Proj Struts_2
+URL https://github.com/apache/struts
+https://github.com/apache/struts/commit/6b8272ce47160036ed120a48345d9aa884477228
+https://github.com/apache/struts/commit/352306493971e7d5a756d61780d57a76eb1f519a
+-------
+STRUTS_2_5_11...STRUTS_2_5_12 --> (https://github.com/apache/struts/commit/a249ed5f31a1aca8305c49500e6d21eed0c18b46...https://github.com/apache/struts/commit/ee74aea445883ff5ee235190722aa0fb04640a2e)
+STRUTS_2_3_32...STRUTS_2_3_33 --> (https://github.com/apache/struts/commit/1ed29d508fc0a3762ad7d16336a71adcf69bd88d...https://github.com/apache/struts/commit/631ce98d171b1c7adb680b41a0303c61a81678fd)
+
+Proj ActiveMQ
+URL https://github.com/apache/activemq
+https://github.com/apache/activemq/commit/338a74dfa42a7b19d39adecacfa5f626a050e807
+https://github.com/apache/activemq/commit/028a33ea7d73fabe6161defffdbfc85578328a68
+https://github.com/apache/activemq/commit/a7e2a44fe8d4435ae99532eb0ab852e6247f7b16
+-------
+activemq-5.11.3...activemq-5.11.4(https://github.com/apache/activemq/commit/857e9224e90a2be58915640a2328eebe3e045b90...https://github.com/apache/activemq/commit/5e98086209a1fbfe7b127d9824ff6d355d38c31d)
+activemq-5.12.2...activemq-5.12.3(https://github.com/apache/activemq/commit/6ccbbce23de1d92daf83456accfdb03a4b768238...https://github.com/apache/activemq/commit/7b5150fbe3198afd79a04ba2bcdac8da363e21fc)
+activemq-5.13.0...activemq-5.13.1(https://github.com/apache/activemq/commit/abfe038ddfd6d6c4f7c41e106dabc815041b04c5...https://github.com/apache/activemq/commit/d60b73402cc11babb53e0a26e4537265f153492b)

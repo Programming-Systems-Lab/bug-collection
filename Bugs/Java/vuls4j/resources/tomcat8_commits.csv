@@ -1,0 +1,13 @@
+CVE-2017-5664,TOMCAT_8_0_43,TOMCAT_8_0_44,output/build/bin,./catalina.sh start
+CVE-2017-12617,TOMCAT_8_0_46,TOMCAT_8_0_47,output/build/bin,./catalina.sh start
+CVE-2018-1305,TOMCAT_8_0_49,TOMCAT_8_0_50,output/build/bin,./catalina.sh start
+CVE-2018-1304,TOMCAT_8_0_49,TOMCAT_8_0_50,output/build/bin,./catalina.sh start
+CVE-2017-7674,TOMCAT_8_0_44,TOMCAT_8_0_45,output/build/bin,./catalina.sh start
+CVE-2017-5647,TOMCAT_8_0_42,TOMCAT_8_0_43,output/build/bin,./catalina.sh start
+CVE-2017-8745,TOMCAT_8_0_39,TOMCAT_8_0_41,output/build/bin,./catalina.sh start
+CVE-2017-5647,TOMCAT_8_0_38,TOMCAT_8_0_39,output/build/bin,./catalina.sh start
+CVE-2016-6816,TOMCAT_8_0_38_TOMCAT_8_0_39,output/build/bin,./catalina.sh start
+CVE-2016-3092,TOMCAT_8_0_35,TOMCAT_8_0_36,output/build/bin,./catalina.sh start
+CVE-2015-5351,TOMCAT_8_0_31,TOMCAT_8_0_32,output/build/bin,./catalina.sh start
+CVE-2016-0714,TOMCAT_8_0_30,TOMCAT_8_0_31,output/build/bin,./catalina.sh start
+CVE-2014-0227,TOMCAT_8_0_8,TOMCAT_8_0_9,output/build/bin,./catalina.sh start

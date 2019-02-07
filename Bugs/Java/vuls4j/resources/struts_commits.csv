@@ -1,0 +1,2 @@
+CVE-2017-9791,STRUTS_2_3_32,STRUTS_2_3_33,apps/showcase,mvn jetty:run
+CVE-2017-9805,STRUTS_2_5_12,STRUTS_2_5_13,apps/rest-showcase,mvn jetty:run
