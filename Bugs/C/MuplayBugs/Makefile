@@ -359,6 +359,310 @@ clean-openssl-buggy-1:
 clean-openssl-patched-1:
 	rm -r ./openssl-patched-1-obj;
 
+#### Coreutils Bug collections
+clone-coreutils:
+	git clone git://git.sv.gnu.org/coreutils
+
+# WC bugs
+# WC bug1: the visible output of this printf is "how are you".  In either case, wc does 
+# not recognize the second space as white space, resulting in an incorrect word 
+# count
+WC_BUG_1 = 2ab2f7a422652a9ec887e08ca8935b44e9629505
+WC_PATCH_1 = a5202bd58531923ea9f93cc35ddeec5e3a8e0189
+
+wc-buggy-1: clone-coreutils
+	mv coreutils coreutils-wc-bug1; \
+				cd ./coreutils-wc-bug1; \
+				git checkout $(WC_BUG_1); \
+				./bootstrap; \
+				./configure --quiet; \
+				make -j8;
+
+wc-patch-1: clone-coreutils
+	mv coreutils coreutils-wc-patch1; \
+				cd ./coreutils-wc-patch1; \
+				git checkout $(WC_PATCH_1); \
+				./bootstrap; \
+				./configure --quiet; \
+				make -j8;
+
+test-wc-buggy-1: wc-buggy-1
+	printf 'how are\xC2\xA0you\n' | LC_ALL=en_US.utf8 src/wc -w
+
+test-wc-patch-1: wc-patch-1
+	printf 'how are\xC2\xA0you\n' | LC_ALL=en_US.utf8 src/wc -w
+	
+clean-wc-buggy-1:
+	rm -r ./coreutils-wc-bug1
+
+clean-wc-patch-1:
+	rm -r ./coreutils-wc-patch1
+
+# YES bugs
+# YES bug1: For select programs which accept only --help and --version options
+# (in addition to non-option arguments), process these options before
+# any other options.
+
+# Before:
+
+#  $ dd bs=1 --help
+#  dd: unrecognized option '--help'
+#  Try 'dd --help' for more information.
+
+#  $ yes me --help
+#  me --help
+#  me --help
+#  ...
+
+# After:
+# Any occurrence of '--help' in the arguments (prior to '--') will
+# show the help screen.
+YES_BUG_1 = 36b99b611309d8ef9634376d87149724850074a8
+YES_PATCH_1 = 	44af84263ed9398418f8366d08a1c20f3aed367e
+
+yes-buggy-1: clone-coreutils
+	mv coreutils coreutils-yes-bug1; \
+		cd ./coreutils-yes-bug1; \
+		git checkout $(YES_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+yes-patch-1: clone-coreutils
+	mv coreutils coreutils-yes-patch1; \
+		cd ./coreutils-yes-patch1; \
+		git checkout $(YES_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+test-yes-buggy-1: yes-buggy-1
+	./src/yes me --help
+
+test-yes-patch-1: yes-patch-1
+	./src/yes me --help
+
+clean-yes-buggy-1:
+	rm -r ./coreutils-yes-bug1
+
+clean-yes-patch-1:
+	rm -r ./coreutils-yes-patch1
+
+# Shred Bugs
+# Shred bug1: Fixed: shred --remove will again repeatedly rename files with shortening names
+#  to attempt to hide the original length of the file name
+SHRED_BUG_1 = 4cb3f4faa435820dc99c36b30ce93c7d01501f65
+SHRED_PATCH_1 = c34f8d5c787e6f7f7a0fdcd5f8c8bcf845081584
+
+shred-buggy-1: clone-coreutils
+	mv coreutils coreutils-shred-bug1; \
+		cd ./coreutils-shred-bug1; \
+		git checkout $(SHRED_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8
+
+shred-patch-1: clone-coreutils
+	mv coreutils coreutils-shred-patch1; \
+		cd ./coreutils-shred-patch1; \
+		git checkout $(SHRED_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8
+
+test-shred-buggy-1: shred-buggy-1
+	touch test
+	./src/shred -vu test
+
+test-shred-patch-1: shred-patch-1
+	touch test
+	./src/shred -vu test
+
+clean-shred-buggy-1:
+	rm -r ./coreutils-shred-bug1
+
+clean-shred-patch-1:
+	rm -r ./coreutils-shred-patch1
+
+# LS Bugs
+# ls bug1: ls -aA shows . and .. in an empty directory; Fix: 'ls -aA' is now equivalent to 'ls -A', since -A now overrides -a
+LS_BUG_1 = 49b126bfc5ae78c8fd913699aa645c10187af1c5
+LS_BUG_1 = 8d6acfd853fe78f9b47fe3a317b55d904278f89f
+
+ls-buggy-1: clone-coreutils
+	mv coreutils coreutils-ls-bug1; \
+		cd coreutils-ls-bug1; \
+		git checkout $(LS_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+ls-patch-1: clone-coreutils
+	mv coreutils coreutils-ls-patch1; \
+		cd coreutils-ls-patch1; \
+		git checkout $(LS_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+test-ls-buggy-1: ls-buggy-1
+	mkdir temp && cd temp; \
+		./src/ls -aA;
+
+test-ls-patch-1: ls-patch-1
+	mkdir temp && cd temp; \
+		./src/ls -aA;
+
+clean-ls-buggy-1:
+	rm -r ./coreutils-ls-bug1
+
+clean-ls-patch-1:
+	rm -r ./coreutils-ls-patch1
+
+# CP Bugs
+# cp bug1: 
+# $ ln -s self self
+# $ cat self 
+# self: Too many levels of symbolic links
+# $ touch a
+# $ cp a self 
+# cp: failed to access 'self': Too many levels of symbolic links
+# $ cp -f a self 
+# cp: failed to access 'self': Too many levels of symbolic links
+#
+# Fix: Don't fail immediately upon
+# getting ELOOP when running stat() on the destination,
+# rather proceeding if -f specified, allowing the link
+# to be removed.  If the loop is not in the final component
+# of the destination path, we still fail but at the
+# subsequent unlink() stage
+#
+# --force doesn't work with dangling links, rather than
+# all links that can't be traversed
+# 'cp --force file symlink' now removes the symlink even if
+#  it is self referential
+CP_BUG_1 = d3daa95096e2692e5c8a0402e270b0e2ec7918e5
+CP_PATCH_1 = c732388fa1a47376c28bc4a55eadd73944ab711d
+
+cp-buggy-1: clone-coreutils
+	mv coreutils coreutils-cp-bug1; \
+		cd coreutils-cp-bug1; \
+		git checkout $(CP_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+cp-patch-1: clone-coreutils
+	mv coreutils coreutils-cp-patch1; \
+		cd coreutils-cp-patch1; \
+		git checkout $(CP_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+test-cp-buggy-1: cp-buggy-1
+	ln -s self self; \
+		cat self; \
+		touch a; \
+		./src/cp a self; \
+		./src/cp -f a self;
+
+test-cp-patch-1: cp-patch-1
+	ln -s self self; \
+		cat self; \
+		touch a; \
+		./src/cp a self; \
+		./src/cp -f a self;
+
+clean-cp-buggy-1:
+	rm -r ./coreutils-cp-bug1
+
+clean-cp-patch-1:
+	rm -r ./coreutils-cp-patch1
+
+# MV Bugs:
+# mv bug1:
+#
+# Fix:
+# 'cp -n -u' and 'mv -n -u' now consistently ignore the -u option.
+# Previously, this option combination suffered from race conditions
+# that caused -u to sometimes override -n
+MV_BUG_1 = 3f9b1b86b18777b996c81d40c64e1e3ede8ecbef
+MV_PATCH_1 = 7e244891b0c41bbf9f5b5917d1a71c183a8367ac
+
+mv-buggy-1: clone-coreutils
+	mv coreutils coreutils-mv-bug1; \
+		cd coreutils-mv-bug1; \
+		git checkout $(MV_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+mv-patch-1: clone-coreutils
+	mv coreutils coreutils-mv-patch1; \
+		cd coreutils-mv-patch1; \
+		git checkout $(MV_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+# mv -n -u should not overwrite b, but due to race condition sometimes it does since a is newer than b
+test-mv-buggy-1: mv-buggy-1
+	touch b && echo 'hello' >> b; \
+		touch a && echo 'world' >> a; \
+		./src/mv -n -u a b;
+
+# now mv -n -u completely ignores -u and will not overwrite b
+test-mv-patch-1: mv-patch-1
+	touch b && echo 'hello' >> b; \
+		touch a && echo 'world' >> a; \
+		./src/mv -n -u a b;
+
+clean-mv-buggy-1:
+	rm -r coreutils-mv-bug1
+
+clean-mv-patch-1:
+	rm -r coreutils-mv-patch1
+
+# DF Bugs:
+# df bug1: 
+# mkfifo p
+# df p
+# hangs, unless you make "p" non-readable or some other process has the fifo open in write mode
+
+# Fix: df no longer hangs when given a fifo argument
+DF_BUG_1 = f89c20bdf7ccc033cbc22662e932fae7761754fc
+DF_PATCH_1 = b04ce61958c1f1fc264950f8d3b6058f640ee491
+
+df-buggy-1: clone-coreutils
+	mv coreutils coreutils-df-bug1; \
+		cd coreutils-df-bug1; \
+		git checkout $(DF_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+df-patch-1: clone-coreutils
+	mv coreutils coreutils-df-patch1; \
+		cd coreutils-df-patch1; \
+		git checkout $(DF_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+test-df-buggy-1: df-buggy-1
+	mkfifo p; \
+		./src/df p
+
+test-df-patch-1: df-patch-1
+	mkfifo p; \
+		./src/df p
+
+clean-df-buggy-1:
+	rm -r coreutils-df-bug1
+
+clean-df-patch-1:
+	rm -r coreutils-df-patch1
 
 # Wget Bug #1 -- Simple fix stops creating the log when using -O and -q in the background
 # https://github.com/mirror/wget/commit/7ddcebd61e170fb03d361f82bf8f5550ee62a1ae
