@@ -386,17 +386,57 @@ wc-patch-1: clone-coreutils
 				./configure --quiet; \
 				make -j8;
 
-test-wc-buggy-1: wc-buggy-1
-	printf 'how are\xC2\xA0you\n' | LC_ALL=en_US.utf8 src/wc -w
+test-wc-buggy-1:
+	printf 'how are\xC2\xA0you\n' | LC_ALL=en_US.utf8 coreutils-wc-bug1/src/wc -w
 
-test-wc-patch-1: wc-patch-1
-	printf 'how are\xC2\xA0you\n' | LC_ALL=en_US.utf8 src/wc -w
+test-wc-patch-1:
+	printf 'how are\xC2\xA0you\n' | LC_ALL=en_US.utf8 coreutils-wc-patch1/src/wc -w
 	
 clean-wc-buggy-1:
-	rm -r ./coreutils-wc-bug1
+	rm -rf ./coreutils-wc-bug1
 
 clean-wc-patch-1:
-	rm -r ./coreutils-wc-patch1
+	rm -rf ./coreutils-wc-patch1
+
+# WC bugs
+# WC bug2: wc reports wrong byte counts when using '--from-files0=-'
+
+WC_BUG_2 = f071b04afaeefbf6c37a00986fec02b8df5e9560 
+WC_PATCH_2 = 9944e4763bb178852727812e8b188540772384e2
+
+wc-buggy-2: clone-coreutils
+	mv coreutils coreutils-wc-bug2; \
+				cd ./coreutils-wc-bug2; \
+				git checkout $(WC_BUG_2); \
+				./bootstrap; \
+				./configure --quiet; \
+				make -j8;
+
+wc-patch-2: clone-coreutils
+	mv coreutils coreutils-wc-patch2; \
+				cd ./coreutils-wc-patch2; \
+				git checkout $(WC_PATCH_2); \
+				./bootstrap; \
+				./configure --quiet; \
+				make -j8;
+
+test-wc-buggy-2:
+	cd coreutils-wc-bug2; \
+		touch wc.small; \
+		seq 10000 > wc.big; \
+		printf '%s\0' wc.big wc.small | src/wc -c --files0-from=-
+		
+test-wc-patch-2:
+	cd coreutils-wc-patch2; \
+		touch wc.small; \
+		seq 10000 > wc.big; \
+		printf '%s\0' wc.big wc.small | src/wc -c --files0-from=-
+	
+clean-wc-buggy-2:
+	rm -rf ./coreutils-wc-bug2
+
+clean-wc-patch-2:
+	rm -rf ./coreutils-wc-patch2
 
 # YES bugs
 # YES bug1: For select programs which accept only --help and --version options
@@ -418,7 +458,7 @@ clean-wc-patch-1:
 # Any occurrence of '--help' in the arguments (prior to '--') will
 # show the help screen.
 YES_BUG_1 = 36b99b611309d8ef9634376d87149724850074a8
-YES_PATCH_1 = 	44af84263ed9398418f8366d08a1c20f3aed367e
+YES_PATCH_1 = 44af84263ed9398418f8366d08a1c20f3aed367e
 
 yes-buggy-1: clone-coreutils
 	mv coreutils coreutils-yes-bug1; \
@@ -436,17 +476,19 @@ yes-patch-1: clone-coreutils
 		./configure --quiet; \
 		make -j8;
 
-test-yes-buggy-1: yes-buggy-1
-	./src/yes me --help
+test-yes-buggy-1:
+	cd ./coreutils-yes-bug1; \
+		./src/yes me --help
 
-test-yes-patch-1: yes-patch-1
-	./src/yes me --help
+test-yes-patch-1:
+	cd ./coreutils-yes-patch1; \
+		./src/yes me --help
 
 clean-yes-buggy-1:
-	rm -r ./coreutils-yes-bug1
+	rm -rf ./coreutils-yes-bug1
 
 clean-yes-patch-1:
-	rm -r ./coreutils-yes-patch1
+	rm -rf ./coreutils-yes-patch1
 
 # Shred Bugs
 # Shred bug1: Fixed: shred --remove will again repeatedly rename files with shortening names
@@ -470,24 +512,26 @@ shred-patch-1: clone-coreutils
 		./configure --quiet; \
 		make -j8
 
-test-shred-buggy-1: shred-buggy-1
-	touch test
-	./src/shred -vu test
+test-shred-buggy-1:
+	cd ./coreutils-shred-bug1; \
+		touch test; \
+		./src/shred -vu test
 
-test-shred-patch-1: shred-patch-1
-	touch test
-	./src/shred -vu test
+test-shred-patch-1:
+	cd ./coreutils-shred-patch1; \
+		touch test; \
+		./src/shred -vu test
 
 clean-shred-buggy-1:
-	rm -r ./coreutils-shred-bug1
+	rm -rf ./coreutils-shred-bug1
 
 clean-shred-patch-1:
-	rm -r ./coreutils-shred-patch1
+	rm -rf ./coreutils-shred-patch1
 
 # LS Bugs
 # ls bug1: ls -aA shows . and .. in an empty directory; Fix: 'ls -aA' is now equivalent to 'ls -A', since -A now overrides -a
 LS_BUG_1 = 49b126bfc5ae78c8fd913699aa645c10187af1c5
-LS_BUG_1 = 8d6acfd853fe78f9b47fe3a317b55d904278f89f
+LS_PATCH_1 = 8d6acfd853fe78f9b47fe3a317b55d904278f89f
 
 ls-buggy-1: clone-coreutils
 	mv coreutils coreutils-ls-bug1; \
@@ -505,19 +549,21 @@ ls-patch-1: clone-coreutils
 		./configure --quiet; \
 		make -j8;
 
-test-ls-buggy-1: ls-buggy-1
-	mkdir temp && cd temp; \
-		./src/ls -aA;
+test-ls-buggy-1:
+	cd coreutils-ls-bug1; \
+		mkdir temp && cd temp; \
+		\../src/ls -aA;
 
-test-ls-patch-1: ls-patch-1
-	mkdir temp && cd temp; \
-		./src/ls -aA;
+test-ls-patch-1:
+	cd coreutils-ls-patch1; \
+		mkdir temp && cd temp; \
+		\../src/ls -aA;
 
 clean-ls-buggy-1:
-	rm -r ./coreutils-ls-bug1
+	rm -rf ./coreutils-ls-bug1
 
 clean-ls-patch-1:
-	rm -r ./coreutils-ls-patch1
+	rm -rf ./coreutils-ls-patch1
 
 # CP Bugs
 # cp bug1: 
@@ -560,25 +606,27 @@ cp-patch-1: clone-coreutils
 		./configure --quiet; \
 		make -j8;
 
-test-cp-buggy-1: cp-buggy-1
-	ln -s self self; \
+test-cp-buggy-1: 
+	cd coreutils-cp-bug1; \
+		ln -s self self; \
 		cat self; \
 		touch a; \
 		./src/cp a self; \
 		./src/cp -f a self;
 
-test-cp-patch-1: cp-patch-1
-	ln -s self self; \
+test-cp-patch-1:
+	cd coreutils-cp-patch1; \
+		ln -s self self; \
 		cat self; \
 		touch a; \
 		./src/cp a self; \
 		./src/cp -f a self;
 
 clean-cp-buggy-1:
-	rm -r ./coreutils-cp-bug1
+	rm -rf ./coreutils-cp-bug1
 
 clean-cp-patch-1:
-	rm -r ./coreutils-cp-patch1
+	rm -rf ./coreutils-cp-patch1
 
 # MV Bugs:
 # mv bug1:
@@ -607,22 +655,24 @@ mv-patch-1: clone-coreutils
 		make -j8;
 
 # mv -n -u should not overwrite b, but due to race condition sometimes it does since a is newer than b
-test-mv-buggy-1: mv-buggy-1
-	touch b && echo 'hello' >> b; \
+test-mv-buggy-1: 
+	cd coreutils-mv-bug1; \
+		touch b && echo 'hello' >> b; \
 		touch a && echo 'world' >> a; \
 		./src/mv -n -u a b;
 
 # now mv -n -u completely ignores -u and will not overwrite b
-test-mv-patch-1: mv-patch-1
-	touch b && echo 'hello' >> b; \
+test-mv-patch-1:
+	cd coreutils-mv-patch1; \
+		touch b && echo 'hello' >> b; \
 		touch a && echo 'world' >> a; \
 		./src/mv -n -u a b;
 
 clean-mv-buggy-1:
-	rm -r coreutils-mv-bug1
+	rm -rf coreutils-mv-bug1
 
 clean-mv-patch-1:
-	rm -r coreutils-mv-patch1
+	rm -rf coreutils-mv-patch1
 
 # DF Bugs:
 # df bug1: 
@@ -650,57 +700,140 @@ df-patch-1: clone-coreutils
 		./configure --quiet; \
 		make -j8;
 
-test-df-buggy-1: df-buggy-1
-	mkfifo p; \
+test-df-buggy-1:
+	cd coreutils-df-bug1; \
+		mkfifo p; \
 		./src/df p
 
-test-df-patch-1: df-patch-1
-	mkfifo p; \
+test-df-patch-1:
+	cd coreutils-df-patch; \
+		mkfifo p; \
 		./src/df p
 
 clean-df-buggy-1:
-	rm -r coreutils-df-bug1
+	rm -rf coreutils-df-bug1
 
 clean-df-patch-1:
-	rm -r coreutils-df-patch1
+	rm -rf coreutils-df-patch1
+
+# B2Sum bugs
+# Running b2sum with --check option, and simply
+# providing a string "BLAKE2" with no trailing character raises segFault
+BS_BUG_1 = f926f7ce0e0a224ef3a37a82e60fd3d7aaca906e
+BS_PATCH_1 = cc19f63be3ad0f27c9ea7f223883b75917fda7fb
+
+bs-buggy-1: clone-coreutils
+	mv coreutils coreutils-bs-bug1; \
+		cd coreutils-bs-bug1; \
+		git checkout $(BS_BUG_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+bs-patch-1: clone-coreutils
+	mv coreutils coreutils-bs-patch1; \
+		cd coreutils-bs-patch1; \
+		git checkout $(BS_PATCH_1); \
+		./bootstrap; \
+		./configure --quiet; \
+		make -j8;
+
+test-bs-buggy-1:
+	cd coreutils-bs-bug1; \
+		./src/b2sum --check <<< BLAKE2
+
+test-bs-patch-1:
+	cd coreutils-bs-patch1; \
+		./src/b2sum --check <<< BLAKE2
+
+clean-bs-buggy-1:
+	rm -rf coreutils-bs-bug1
+
+clean-bs-patch-1:
+	rm -rf coreutils-bs-patch1
 
 # Wget Bug #1 -- Simple fix stops creating the log when using -O and -q in the background
 # https://github.com/mirror/wget/commit/7ddcebd61e170fb03d361f82bf8f5550ee62a1ae
 # NEEDS TEST CASE but seems relatively easy to  reproduce
+clone-wget:
+	git clone https://github.com/mirror/wget.git
+
 WGET_BUG_1 = 2f451dbf4e83c751f6bbba7ed26d90bf275fcbf7
 WGET_PATCH_1 = 7ddcebd61e170fb03d361f82bf8f5550ee62a1ae
-
 WGET_BUGGY_INPUT_1 = -q -O - www.google.com 
 
 wget-buggy-1: clone-wget
-	cd ./wget; \
-        git checkout $(WGET_BUG_1); \
-        ./config --enable-debug --prefix=$$(pwd)/../wget-buggy-1-obj; \
-        make -j8; \
-        make install;
+	mv ./wget ./wget-buggy-1; \
+		cd ./wget-buggy-1; \
+    git checkout $(WGET_BUG_1); \
+		./bootstrap; \
+    ./configure --enable-debug --prefix=$$(pwd)/../wget-buggy-1-obj; \
+    make -j8; \
+    make install;
 
 wget-patched-1: clone-wget
-	cd ./wget; \
-        git checkout $(WGET_PATCH_1); \
-        ./config --enable-debug --prefix=$$(pwd)/../wget-patched-1-obj; \
-        make -j8; \
-        make install;
+	mv ./wget ./wget-patched-1; \
+		cd ./wget-patched-1; \
+    git checkout $(WGET_PATCH_1); \
+		./bootstrap; \
+    ./configure --enable-debug --prefix=$$(pwd)/../wget-patched-1-obj; \
+    make -j8; \
+    make install;
 
 test-wget-buggy-1:
 	./wget-buggy-1-obj/bin/wget $(WGET_BUGGY_INPUT_1)
 
 test-wget-patched-1:
 	./wget-patched-1-obj/bin/wget $(WGET_BUGGY_INPUT_1) 
+
 clean-wget-buggy-1:
-	rm -r ./wget-buggy-1-obj;
+	rm -rf ./wget-buggy-1; \
+		rm -rf ./wget-buggy-1-obj;
+
 clean-wget-patched-1:
-	rm -r ./wget-patched-1-obj;
+	rm -rf ./wget-patched-1; \
+		rm -rf ./wget-patched-1-obj;
 
+# Wget Bug #2 CVE-2017-6508
+WGET_BUG_2 = 63c2aea2557b84640272629c7dc0caccab66ab6d
+WGET_PATCH_2 = 4d729e322fae359a1aefaafec1144764a54e8ad4
+WGET_BUGGY_INPUT_2 = 'http://127.0.0.1%0d%0aCookie%3a hi%0a/'
 
+wget-buggy-2: clone-wget
+	mv ./wget ./wget-buggy-2; \
+		cd ./wget-buggy-2; \
+    git checkout $(WGET_BUG_2); \
+		./bootstrap; \
+    ./configure --enable-debug --prefix=$$(pwd)/../wget-buggy-2-obj; \
+    make -j8; \
+    make install;
 
-# Wget Bug #2 -- Still awaiting analysis but seems like a good one
+wget-patched-2: clone-wget
+	mv ./wget ./wget-patched-2; \
+		cd ./wget-patched-2; \
+    git checkout $(WGET_PATCH_2); \
+		./bootstrap; \
+    ./configure --enable-debug --prefix=$$(pwd)/../wget-patched-2-obj; \
+    make -j8; \
+    make install;
+
+test-wget-buggy-2:
+	./wget-buggy-2-obj/bin/wget $(WGET_BUGGY_INPUT_2)
+
+test-wget-patched-2:
+	./wget-patched-2-obj/bin/wget $(WGET_BUGGY_INPUT_2) 
+
+clean-wget-buggy-2:
+	rm -rf ./wget-buggy-2; \
+		rm -rf ./wget-buggy-2-obj;
+
+clean-wget-patched-2:
+	rm -rf ./wget-patched-2; \
+		rm -rf ./wget-patched-2-obj;
+
+# Wget Bug #3 -- Still awaiting analysis but seems like a good one
 # https://nvd.nist.gov/vuln/detail/CVE-2018-20483
-#this Wget bug seems has been covered in curl bug #6
+# this Wget bug seems has been covered in curl bug #6
 
 
 # MBEDTLS Bug #1 -- Could be good but hasn't been officially patched yet
@@ -834,7 +967,7 @@ sqlite-patched-1: clone-sqlite
 	git checkout $(SQLITE_PATCH_1); \
 	../sqlscript.sh; \
 	cd ../; \
-	mkdir sqlite-buggy-1-obj && cd sqlite-buggy-1-obj; \
+	mkdir sqlite-patched-1-obj && cd sqlite-patched-1-obj; \
 	../sqlite/configure --enable-debug; \
 	make -j8;
 
