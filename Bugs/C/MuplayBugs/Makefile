@@ -357,11 +357,91 @@ test-curl-patched-7:
 	./configure --with-ssl=/path/to/libressl 2> ../test-result-curl/fixed_version.txt; \
 	vim ../test-result-curl/fixed_version.txt
 
-clean-curl-buggy-7:
-	rm -rf ./curl-old;
-	
-clean-curl-patched-7:
-	rm -rf ./curl-new;
+clean-curl-7:
+	rm -rf ./curl-old; \
+	rm -rf ./curl-new; \
+	rm -rf ./test-result-curl
+
+
+# Curl Bug #8
+# https://github.com/curl/curl/commit/e50a2002bd450a4800a165d2874ed79c95b33a07
+# FILE: fix CURLOPT_NOBODY and CURLOPT_HEADER output
+
+CURL_BUG_8 = b55e85d 
+CURL_PATCH_8 = e50a200
+
+curl-buggy-8:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_8); \
+        ./buildconf; \
+	./configure; \
+	make -j8; \
+
+curl-patched-8:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_8); \
+        ./buildconf; \
+	./configure; \
+	make -j8; \
+
+test-curl-buggy-8:
+	mkdir test-result-curl; \
+        cd ./curl-old; \
+        ./src/curl --head file:///usr/share/dict/words > ../test-result-curl/buggy_result.txt; \
+	vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-8:
+	cd ./curl-new; \
+        ./src/curl --head file:///usr/share/dict/words > ../test-result-curl/fixed_version.txt; \
+	vim ../test-result-curl/fixed_version.txt
+
+clean-curl-8:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
+
+
+# Curl Bug #9
+# https://github.com/curl/curl/commit/2c5ec339ea67f43ac370ae77636a0f915cc5fbeb
+# Curl_follow: accept non-supported schemes for "fake" redirects
+
+CURL_BUG_9 = a4653a7
+CURL_PATCH_9 = 2c5ec33
+
+curl-buggy-9:
+	git clone https://github.com/curl/curl.git curl-old; \
+	cd ./curl-old; \
+	git checkout $(CURL_BUG_9); \
+	./buildconf; \
+	./configure --without-ssl; \
+	make -j8
+
+curl-patched-9:
+	git clone https://github.com/curl/curl.git curl-new; \
+	cd ./curl-new; \
+	git checkout $(CURL_PATCH_9); \
+	./buildconf; \
+	./configure --without-ssl; \
+	make -j8
+
+test-curl-buggy-9:
+	mkdir test-result-curl; \
+	cd ./curl-old; \
+	./src/curl -v http://cmake.org > ../test-result-curl/buggy_result.txt 2>&1; \
+	vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-9:
+	cd ./curl-new; \
+	./src/curl -v http://cmake.org > ../test-result-curl/fixed_version.txt 2>&1; \
+	vim ../test-result-curl/fixed_version.txt
+
+clean-curl-9:
+	rm -rf ./curl-old; \
+	rm -rf ./curl-new; \
+	rm -rf ./test-result-curl
+
 
 #OpenSSL Bug #1 -- Potential Use after free vulnerability
 # Pull request here: https://github.com/openssl/openssl/pull/7359
