@@ -443,6 +443,86 @@ clean-curl-9:
 	rm -rf ./test-result-curl
 
 
+# Curl Bug #10
+# https://github.com/curl/curl/pull/3219
+# URL: fix IPv6 numeral address parser
+
+CURL_BUG_10 = 6987e37
+CURL_PATCH_10 = b280948
+
+curl-buggy-10:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_10); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+curl-patched-10:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_10); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+test-curl-buggy-10:
+	mkdir test-result-curl; \
+        cd ./curl-old; \
+        ./src/curl http://[2600::] > ../test-result-curl/buggy_result.txt 2>&1; \
+        vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-10:
+	cd ./curl-new; \
+        ./src/curl http://[2600::] > ../test-result-curl/fixed_version.txt 2>&1; \
+        vim ../test-result-curl/fixed_version.txt
+
+clean-curl-10:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
+
+
+# Curl Bug #11
+# https://github.com/curl/curl/issues/3251
+# curl --local-port does not try last port in range
+
+CURL_BUG_11 = 27cb384
+CURL_PATCH_11 = fcf3f13
+
+curl-buggy-11:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_11); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+curl-patched-11:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_11); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+test-curl-buggy-11:
+	mkdir test-result-curl; \
+        cd ./curl-old; \
+        ./src/curl --local-port 1023-1024 localhost > ../test-result-curl/buggy_version.txt 2>&1; \
+        vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-11:
+	cd ./curl-new; \
+        ./src/curl --local-port 1023-1024 localhost > ../test-result-curl/fixed_version.txt 2>&1; \
+        vim ../test-result-curl/fixed_version.txt
+
+clean-curl-11:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
+
+
 #OpenSSL Bug #1 -- Potential Use after free vulnerability
 # Pull request here: https://github.com/openssl/openssl/pull/7359
 # NEEDS TEST CASE
