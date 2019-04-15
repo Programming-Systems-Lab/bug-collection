@@ -523,6 +523,48 @@ clean-curl-11:
         rm -rf ./test-result-curl
 
 
+# libpng Bug #1
+# https://bugzilla.redhat.com/show_bug.cgi?id=1599943
+# Bug 1599943 (CVE-2018-13785) - CVE-2018-13785 libpng: 
+# Integer overflow and resultant divide-by-zero in
+# pngrutil.c:png_check_chunk_length() allows for denial
+# of service
+
+LIBPNG_BUG_1 = cde1e1fe79974a37d7ef255a44dae3bfd1b34a0f
+LIBPNG_PATCH_1 = 8a05766cb74af05c04c53e6c9d60c13fc4d59bf2
+
+libpng-buggy-1:
+	git clone https://github.com/glennrp/libpng.git libpng-buggy; \
+        cd ./libpng-buggy; \
+        git checkout $(LIBPNG_BUG_1); \
+        sed -i 's/return ((int)(crc != png_ptr->crc));/return (0);/g' pngrutil.c; \
+	autoreconf -f -i; \
+	./configure --disable-shared; \
+	make clean all check
+
+libpng-patched-1:
+	git clone https://github.com/glennrp/libpng.git libpng-fixed; \
+        cd ./libpng-fixed; \
+        git checkout $(LIBPNG_PATCH_1); \
+        sed -i 's/return ((int)(crc != png_ptr->crc));/return (0);/g' pngrutil.c; \
+	autoreconf -f -i; \
+	./configure --disable-shared; \
+	make clean all check
+
+test-libpng-buggy-1:
+	wget https://sourceforge.net/p/libpng/bugs/278/attachment/crash1.png; \
+	./libpng-buggy/pngimage crash1.png > result_buggy.txt 2>&1;
+
+test-libpng-patched-1:
+	./libpng-fixed/pngimage crash1.png > result_fixed.txt 2>&1;
+
+clean-libpng-1:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm ./result_buggy.txt; \
+	rm ./result_fixed.txt
+
+
 #OpenSSL Bug #1 -- Potential Use after free vulnerability
 # Pull request here: https://github.com/openssl/openssl/pull/7359
 # NEEDS TEST CASE
