@@ -553,16 +553,55 @@ libpng-patched-1:
 
 test-libpng-buggy-1:
 	wget https://sourceforge.net/p/libpng/bugs/278/attachment/crash1.png; \
-	./libpng-buggy/pngimage crash1.png > result_buggy.txt 2>&1;
+	./libpng-buggy/pngimage crash1.png > result_buggy.txt 2>&1
 
 test-libpng-patched-1:
-	./libpng-fixed/pngimage crash1.png > result_fixed.txt 2>&1;
+	./libpng-fixed/pngimage crash1.png > result_fixed.txt 2>&1
 
 clean-libpng-1:
-	rm -rf ./curl-old; \
-        rm -rf ./curl-new; \
+	rm -rf ./libpng-buggy; \
+        rm -rf ./libpng-fixed; \
         rm ./result_buggy.txt; \
 	rm ./result_fixed.txt
+
+
+
+# libpng Bug #2
+# https://sourceforge.net/p/libpng/bugs/270/
+# libpng-1.6.32 rejects valid PNG images with "IDAT: chunk data is too large"
+
+LIBPNG_BUG_2 = 47aa798
+LIBPNG_PATCH_2 = eb2f42a
+
+libpng-buggy-2:
+	git clone https://github.com/glennrp/libpng.git libpng-buggy; \
+        cd ./libpng-buggy; \
+        git checkout $(LIBPNG_BUG_2); \
+	autoreconf -f -i; \
+	./configure; \
+	make
+
+libpng-patched-2:
+	git clone https://github.com/glennrp/libpng.git libpng-fixed; \
+        cd ./libpng-fixed; \
+        git checkout $(LIBPNG_PATCH_2); \
+	autoreconf -f -i; \
+	./configure; \
+	make
+
+test-libpng-buggy-2:
+	wget https://raw.githubusercontent.com/Programming-Systems-Lab/bug-collection/reproduce-curl-bug-script/Bugs/C/MuplayBugs/idat_too_large.png?token=Aovwu1XD_3CUlb7duUiobzO-yo8btoRTks5cvlMHwA%3D%3D -O idat_too_large.png; \
+	./libpng-buggy/pngimage idat_too_large.png > result_buggy.txt 2>&1;
+
+test-libpng-patched-2:
+	./libpng-fixed/pngimage idat_too_large.png > result_fixed.txt 2>&1;
+
+clean-libpng-2:
+	rm -rf ./libpng-buggy; \
+        rm -rf ./libpng-fixed; \
+        rm ./result_buggy.txt; \
+	rm ./result_fixed.txt
+
 
 
 #OpenSSL Bug #1 -- Potential Use after free vulnerability
