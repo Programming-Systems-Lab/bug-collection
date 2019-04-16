@@ -292,8 +292,8 @@ clean-curl-patched-5:
 # https://github.com/curl/curl/pull/3433
 # Related to CVE-2018-20483, when using --xattr flag, the file system could save 
 # the information about user name and password
-CURL_BUG_6 = 251cabfb4a9968e92a488635a7ac5071b3f260bd 
-CURL_PATCH_6 = 71886f5b4a4d2b90b55deab27e05733b7ba4fb87
+CURL_BUG_6 = afeb8d99022255279ee63125f2fa0f69810ce9c3
+CURL_PATCH_6 = 98e6629154044e4ab1ee7cff8351c7ebcb131e88
 
 CURL_BUGGY_INPUT_6 = http://testcurlbug:testcurl123@github.com -o file --xattr; \
 		     getfattr file;\
@@ -948,10 +948,16 @@ clone-sqlite:
 	if [ ! -d "./sqlite" ]; \
 		then git clone $(SQLITE_URL); \
 	fi
-SQLITE_BUG_1 = 64e780d3db07fb8c3e7861b086c34edba81ec89a 
-SQLITE_PATCH_1 = 59fa2969625bd593a601562e8416a6047f6f5142
 
-SQL_BUGGY_INPUT_1 = 
+clone-sqlite1:
+	if [ ! -d "./sqlite1" ]; \
+		then git clone $(SQLITE_URL) sqlite1; \
+	fi
+
+
+
+SQLITE_BUG_1 = 0ae3371797d89deb80f729e56c5af6851518e6bd
+SQLITE_PATCH_1 = b9338e8475463b29b7f05fb28c78c3f35a7ce814
 
 sqlite-buggy-1: clone-sqlite
 	cd ./sqlite; \
@@ -962,21 +968,61 @@ sqlite-buggy-1: clone-sqlite
 	../sqlite/configure --enable-debug; \
 	make -j8;
 
-sqlite-patched-1: clone-sqlite
-	cd ./sqlite; \
+sqlite-patched-1: clone-sqlite1
+	cd ./sqlite1; \
 	git checkout $(SQLITE_PATCH_1); \
 	../sqlscript.sh; \
 	cd ../; \
 	mkdir sqlite-patched-1-obj && cd sqlite-patched-1-obj; \
-	../sqlite/configure --enable-debug; \
+	../sqlite1/configure --enable-debug; \
 	make -j8;
 
 test-sqlite-buggy-1:
-	./sqlite-buggy-1-obj/sqlite3 $(CURL_BUGGY_INPUT_6)
+	./sqlite_bug_reproduce_1.sh
 
 test-sqlite-patched-1:
-	./sqlite-patched-1-obj/sqlite3 $(CURL_BUGGY_INPUT_6) 
+	./sqlite_bug_patch_1.sh
+
 clean-sqlite-buggy-1:
 	rm -r ./sqlite-buggy-1-obj;
 clean-sqlite-patched-1:
 	rm -r ./sqlite-patched-1-obj;
+
+LIBGIT_URL = https://github.com/libgit2/libgit2.git
+
+clone-libgit:
+	if [ ! -d "./libgit2" ]; \
+		then git clone $(LIBGIT_URL); \
+	fi
+LIBGIT_BUG_1 = 64138b70e10b9812af8f944e83747aa51da9a920
+LIBGIT_PATCH_1 = d1bfe614aa20a0bdaf76c6d418176320ab11baf4
+
+libgit-buggy-1: clone-libgit
+	cd ./libgit2; \
+	git checkout $(LIBGIT_BUG_1); \
+	cd ..; \
+	mkdir libgit-buggy-1-obj && cd libgit-buggy-1-obj; \
+	cmake ../libgit2; \
+	cmake --build .; \
+	cp ../libgit-1.c ./test.c; \
+    gcc test.c -I libgit2/include -L ./libgit-buggy-1-obj -lgit2 -Wl, -rpath,$(pwd)/libgit-buggy-1-obj
+
+libgit-patched-1: clone-libgit
+	cd ./libgit2; \
+	git checkout $(LIBGIT_PATCH-1); \
+	cd ..; \
+	mkdir libgit-patched-1-obj && cd libgit-patched-1-obj; \
+	cmake ../libgit2; \
+	cmake --build .; \
+	cp ../libgit-1.c ./test.c; \
+	gcc test.c -I libgit2/include -L ./libgit-buggy-1-obj -lgit2 -Wl, -rpath,$(pwd)/libgit-patched-1-obj
+
+
+test-libgit-buggy-1:
+	./libgit-buggy-1-obj/test
+test-libgit-patched-1:
+	./libgit-patched-1-obj/test
+clean-libgit-buggy-1:
+	rm -rf ./libgit-buggy-1-obj
+clean-libgit-patched-1:
+	rm -rf ./libgit-patched-1-obj
