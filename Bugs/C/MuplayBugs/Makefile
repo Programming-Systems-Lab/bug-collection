@@ -16,10 +16,7 @@ openssl-debug:
 	./config --enable-debug --prefix=$$(pwd)/../openssl_obj shared zlib; \
 	#make; \
 	#make install;
-wget-debug:
-		
       
-
 #Start of evaluation/testing
 
 TRACE_DIRECTORY=$$(pwd)/traces
@@ -141,7 +138,7 @@ test-curl-buggy-2: test-curl-buggy-2-after
 
 # TODO ADD SOME CHECK HERE THAT APPENDED OUTPUT TO FILE
 # added.
-clearr:
+clear:
 	rm curl-7.63.0.tar.xz.asc
 
 test-curl-patched-2-before:clearr
@@ -169,52 +166,6 @@ clean-curl-buggy-2:
 clean-curl-patched-2:
 	rm -r ./curl-patched-2-obj
 
-# Curl Bug #3 from the following pull request
-# PR & Patch https://github.com/curl/curl/pull/3219/commits
-# This bug corrects behavior parsing ipv6 URL's
-# Includes reference to a test case
-# Type 1 bug but changes the functions return value going forward
-
-# Curl would mistakely parse some url
-# This bug appears to be hard to reproduce in real using because it is reproduced 
-# under lib test. I could think of some ways to do that, such as modifying the buggy
-# version's test case, which means add some new test cases, or finding a real url which
-# could generate the bug
-CURL_BUG_3 = 46e164069d1a5230e4e64cbd2ff46c46cce056bb 
-CURL_PATCH_3 = 7ffef9d207d7b940f1752f29151fcf8bf1930c56
-CURL_BUGGY_INPUT_3 = http://[fd00:a41::50]/
-curl-buggy-3: clone-curl
-	cd ./curl; \
-	git  checkout $(CURL_BUG_3); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-3-obj; \
-	make -j8; \
-	make install;
-
-curl-patched-3: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_PATCH_3); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-patched-3-obj; \
-	make -j8; \
-	make install;
-test-curl-buggy-3:
-	./curl-buggy-3-obj/bin/curl $(CURL_BUGGY_INPUT_3)
-
-test-curl-patched-3:
-	./curl-patched-3-obj/bin/curl $(CURL_BUGGY_INPUT_3)
-
-record-curl-buggy-3:
-# TODO NEEDS TO BE IMPLEMENTED
-muplay-curl-buggy-3:
-# TODO NEEDS TO BE IMPLEMENTED
-
-clean-curl-buggy-3:
-	rm -r ./curl-buggy-3-obj
-clean-curl-patched-3:
-	rm -r ./curl-patched-3-obj
-
-
 # Curl Bug #4 -- Security Vulnerability
 # Patch applied here: https://github.com/curl/curl/commit/d530e92f59ae9bb2d47066c3c460b25d2ffeb211
 # Needs a test case since one is not included -- another good example of type 1 in the design section
@@ -226,30 +177,36 @@ CURL_PATCH_4 = d530e92f59ae9bb2d47066c3c460b25d2ffeb211
 CURL_BUGGY_INPUT_4 = www.gdsfjewnfpqnojodfsdfoggsgjoiaemfqoinfyibdsuabuicnsianuidfhihqowufhqownfqowufnqowfnqowfnqwoufnqouwnfoqwnfoqwnfqqnwfnqowfnqwuofnoqwnfoquwnfoqwnfqowfnfdsaclcdsadcasdfsadfegwwqweqwfqwsce.com 
 
 curl-buggy-4: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_BUG_4); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-4-obj; \
-	make -j8; \
-	make install;
+	mv ./curl ./curl-old; \
+		cd ./curl-old; \
+		git checkout $(CURL_BUG_4); \
+		./buildconf; \
+		./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-4-obj; \
+		make -j8; \
+		make install;
 
 curl-patched-4: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_PATCH_4); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-patched-4-obj; \
-	make -j8; \
-	make install;
+	mv ./curl ./curl-new; \
+		cd ./curl-new; \
+		git checkout $(CURL_PATCH_4); \
+		./buildconf; \
+		./configure --enable-debug --prefix=$$(pwd)/../curl-patched-4-obj; \
+		make -j8; \
+		make install;
 
 test-curl-buggy-4:
 	./curl-buggy-4-obj/bin/curl $(CURL_BUGGY_INPUT_4) 2> a 
 
 test-curl-patched-4:
 	./curl-patched-4-obj/bin/curl $(CURL_BUGGY_INPUT_4) 2> b
+
 clean-curl-buggy-4:
-	rm -r ./curl-buggy-4-obj;
+	rm -rf ./curl-old; \
+		rm -rf ./curl-buggy-4-obj;
+
 clean-curl-patched-4:
-	rm -r ./curl-patched-4-obj;
+	rm -rf ./curl-new; \
+		rm -rf ./curl-patched-4-obj;
 # Registered with CVE-2018-16842
 
 # Curl Bug #5 -- Security Vulnerability
@@ -262,37 +219,44 @@ CURL_PATCH_5 = 5ca96cb84410270e233c92bf1b2583cba40c3fad
 CURL_BUGGY_INPUT_5 = http://ur%20[0-60000000000000000000 
 
 curl-buggy-5: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_BUG_5); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-5-obj; \
-	make -j8; \
-	make install;
+	mv ./curl ./curl-old; \
+		cd ./curl-old; \
+		git checkout $(CURL_BUG_5); \
+		./buildconf; \
+		./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-5-obj; \
+		make -j8; \
+		make install;
 
 curl-patched-5: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_PATCH_5); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-patched-5-obj; \
-	make -j8; \
-	make install;
+	mv ./curl ./curl-new; \
+		cd ./curl-new; \
+		git checkout $(CURL_PATCH_5); \
+		./buildconf; \
+		./configure --enable-debug --prefix=$$(pwd)/../curl-patched-5-obj; \
+		make -j8; \
+		make install;
 
 test-curl-buggy-5:
 	./curl-buggy-5-obj/bin/curl $(CURL_BUGGY_INPUT_5) 
 
 test-curl-patched-5:
 	./curl-patched-5-obj/bin/curl $(CURL_BUGGY_INPUT_5) 
+
 clean-curl-buggy-5:
-	rm -r ./curl-buggy-5-obj;
+	rm -rf ./curl-old; \
+		rm -rf ./curl-buggy-5-obj;
+
 clean-curl-patched-5:
-	rm -r ./curl-patched-5-obj;
+	rm -rf ./curl-new; \
+		rm -rf ./curl-patched-5-obj;
 
 # Curl Bug #6 -- security vulnerability
 # This hasn't been officially incorporated yet but seems like a good small fix
 # https://github.com/curl/curl/pull/3433
 # Related to CVE-2018-20483, when using --xattr flag, the file system could save 
 # the information about user name and password
-CURL_BUG_6 = afeb8d99022255279ee63125f2fa0f69810ce9c3
+# Dependency: attr
+CURL_BUG_6 = afeb8d99022255279ee63125f2fa0f69810ce9c3 
 CURL_PATCH_6 = 98e6629154044e4ab1ee7cff8351c7ebcb131e88
 
 CURL_BUGGY_INPUT_6 = http://testcurlbug:testcurl123@github.com -o file --xattr; \
@@ -300,20 +264,22 @@ CURL_BUGGY_INPUT_6 = http://testcurlbug:testcurl123@github.com -o file --xattr; 
 		     getfattr -n user.xdg.origin.url file
 #TODO
 curl-buggy-6: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_BUG_6); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-6-obj; \
-	make -j8; \
-	make install;
+	mv ./curl ./curl-old; \
+		cd ./curl-old; \
+		git checkout $(CURL_BUG_6); \
+		./buildconf; \
+		./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-6-obj; \
+		make -j8; \
+		make install;
 
 curl-patched-6: clone-curl
-	cd ./curl; \
-	git checkout $(CURL_PATCH_6); \
-	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-patched-6-obj; \
-	make -j8; \
-	make install;
+	mv ./curl ./curl-new; \
+		cd ./curl-new; \
+		git checkout $(CURL_PATCH_6); \
+		./buildconf; \
+		./configure --enable-debug --prefix=$$(pwd)/../curl-patched-6-obj; \
+		make -j8; \
+		make install;
 
 test-curl-buggy-6:
 	./curl-buggy-6-obj/bin/curl $(CURL_BUGGY_INPUT_6)
@@ -321,10 +287,210 @@ test-curl-buggy-6:
 test-curl-patched-6:
 	rm file; \
 	./curl-patched-6-obj/bin/curl $(CURL_BUGGY_INPUT_6) 
+
 clean-curl-buggy-6:
-	rm -r ./curl-buggy-6-obj;
+	rm -rf ./curl-old; \
+		rm -rf ./curl-buggy-6-obj;
+
 clean-curl-patched-6:
-	rm -r ./curl-patched-6-obj;
+	rm -rf ./curl-new; \
+		rm -rf ./curl-patched-6-obj;
+
+
+# Curl Bug #7
+# https://github.com/curl/curl/commit/d353af001420574210605ba132dfd31a0e3876a5
+# configure: add basic test of --with-ssl prefix
+
+CURL_BUG_7 = 09d16af 
+CURL_PATCH_7 = d353af0
+
+curl-buggy-7: 
+	git clone https://github.com/curl/curl.git curl-old; \
+	cd ./curl-old; \
+	git checkout $(CURL_BUG_7); \
+	./buildconf; 
+	
+curl-patched-7: 
+	git clone https://github.com/curl/curl.git curl-new; \
+	cd ./curl-new; \
+	git checkout $(CURL_PATCH_7); \
+	./buildconf; 
+
+test-curl-buggy-7:
+	mkdir test-result-curl; \
+	cd ./curl-old; \
+	./configure --with-ssl=/path/to/libressl 2> ../test-result-curl/buggy_result.txt; \
+	vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-7:
+	cd ./curl-new; \
+	./configure --with-ssl=/path/to/libressl 2> ../test-result-curl/fixed_version.txt; \
+	vim ../test-result-curl/fixed_version.txt
+
+clean-curl-7:
+	rm -rf ./curl-old; \
+	rm -rf ./curl-new; \
+	rm -rf ./test-result-curl
+
+
+# Curl Bug #8
+# https://github.com/curl/curl/commit/e50a2002bd450a4800a165d2874ed79c95b33a07
+# FILE: fix CURLOPT_NOBODY and CURLOPT_HEADER output
+
+CURL_BUG_8 = b55e85d 
+CURL_PATCH_8 = e50a200
+
+curl-buggy-8:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_8); \
+        ./buildconf; \
+	./configure; \
+	make -j8; \
+
+curl-patched-8:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_8); \
+        ./buildconf; \
+	./configure; \
+	make -j8; \
+
+test-curl-buggy-8:
+	mkdir test-result-curl; \
+        cd ./curl-old; \
+        ./src/curl --head file:///usr/share/dict/words > ../test-result-curl/buggy_result.txt; \
+	vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-8:
+	cd ./curl-new; \
+        ./src/curl --head file:///usr/share/dict/words > ../test-result-curl/fixed_version.txt; \
+	vim ../test-result-curl/fixed_version.txt
+
+clean-curl-8:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
+
+
+# Curl Bug #9
+# https://github.com/curl/curl/commit/2c5ec339ea67f43ac370ae77636a0f915cc5fbeb
+# Curl_follow: accept non-supported schemes for "fake" redirects
+
+CURL_BUG_9 = a4653a7
+CURL_PATCH_9 = 2c5ec33
+
+curl-buggy-9:
+	git clone https://github.com/curl/curl.git curl-old; \
+	cd ./curl-old; \
+	git checkout $(CURL_BUG_9); \
+	./buildconf; \
+	./configure --without-ssl; \
+	make -j8
+
+curl-patched-9:
+	git clone https://github.com/curl/curl.git curl-new; \
+	cd ./curl-new; \
+	git checkout $(CURL_PATCH_9); \
+	./buildconf; \
+	./configure --without-ssl; \
+	make -j8
+
+test-curl-buggy-9:
+	mkdir test-result-curl; \
+	cd ./curl-old; \
+	./src/curl -v http://cmake.org > ../test-result-curl/buggy_result.txt 2>&1; \
+	vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-9:
+	cd ./curl-new; \
+	./src/curl -v http://cmake.org > ../test-result-curl/fixed_version.txt 2>&1; \
+	vim ../test-result-curl/fixed_version.txt
+
+clean-curl-9:
+	rm -rf ./curl-old; \
+	rm -rf ./curl-new; \
+	rm -rf ./test-result-curl
+
+
+# Curl Bug #10
+# https://github.com/curl/curl/pull/3219
+# URL: fix IPv6 numeral address parser
+
+CURL_BUG_10 = 6987e37
+CURL_PATCH_10 = b280948
+
+curl-buggy-10:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_10); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+curl-patched-10:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_10); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+test-curl-buggy-10:
+	mkdir test-result-curl; \
+        cd ./curl-old; \
+        ./src/curl http://[2600::] > ../test-result-curl/buggy_result.txt 2>&1; \
+        vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-10:
+	cd ./curl-new; \
+        ./src/curl http://[2600::] > ../test-result-curl/fixed_version.txt 2>&1; \
+        vim ../test-result-curl/fixed_version.txt
+
+clean-curl-10:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
+
+
+# Curl Bug #11
+# https://github.com/curl/curl/issues/3251
+# curl --local-port does not try last port in range
+
+CURL_BUG_11 = 27cb384
+CURL_PATCH_11 = fcf3f13
+
+curl-buggy-11:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_11); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+curl-patched-11:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_11); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+test-curl-buggy-11:
+	mkdir test-result-curl; \
+        cd ./curl-old; \
+        ./src/curl --local-port 1023-1024 localhost > ../test-result-curl/buggy_version.txt 2>&1; \
+        vim ../test-result-curl/buggy_result.txt
+
+test-curl-patched-11:
+	cd ./curl-new; \
+        ./src/curl --local-port 1023-1024 localhost > ../test-result-curl/fixed_version.txt 2>&1; \
+        vim ../test-result-curl/fixed_version.txt
+
+clean-curl-11:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
 
 
 #OpenSSL Bug #1 -- Potential Use after free vulnerability
@@ -760,7 +926,7 @@ clone-wget:
 
 WGET_BUG_1 = 2f451dbf4e83c751f6bbba7ed26d90bf275fcbf7
 WGET_PATCH_1 = 7ddcebd61e170fb03d361f82bf8f5550ee62a1ae
-WGET_BUGGY_INPUT_1 = -q -O - www.google.com 
+WGET_BUGGY_INPUT_1 = -bq -O - www.google.com 
 
 wget-buggy-1: clone-wget
 	mv ./wget ./wget-buggy-1; \
@@ -988,41 +1154,10 @@ clean-sqlite-buggy-1:
 clean-sqlite-patched-1:
 	rm -r ./sqlite-patched-1-obj;
 
-LIBGIT_URL = https://github.com/libgit2/libgit2.git
 
-clone-libgit:
-	if [ ! -d "./libgit2" ]; \
-		then git clone $(LIBGIT_URL); \
-	fi
-LIBGIT_BUG_1 = 64138b70e10b9812af8f944e83747aa51da9a920
-LIBGIT_PATCH_1 = d1bfe614aa20a0bdaf76c6d418176320ab11baf4
+# Redis Server Bug
+test-redis-buggy-1:
+	./redis_bug.sh
 
-libgit-buggy-1: clone-libgit
-	cd ./libgit2; \
-	git checkout $(LIBGIT_BUG_1); \
-	cd ..; \
-	mkdir libgit-buggy-1-obj && cd libgit-buggy-1-obj; \
-	cmake ../libgit2; \
-	cmake --build .; \
-	cp ../libgit-1.c ./test.c; \
-    gcc test.c -I libgit2/include -L ./libgit-buggy-1-obj -lgit2 -Wl, -rpath,$(pwd)/libgit-buggy-1-obj
-
-libgit-patched-1: clone-libgit
-	cd ./libgit2; \
-	git checkout $(LIBGIT_PATCH-1); \
-	cd ..; \
-	mkdir libgit-patched-1-obj && cd libgit-patched-1-obj; \
-	cmake ../libgit2; \
-	cmake --build .; \
-	cp ../libgit-1.c ./test.c; \
-	gcc test.c -I libgit2/include -L ./libgit-buggy-1-obj -lgit2 -Wl, -rpath,$(pwd)/libgit-patched-1-obj
-
-
-test-libgit-buggy-1:
-	./libgit-buggy-1-obj/test
-test-libgit-patched-1:
-	./libgit-patched-1-obj/test
-clean-libgit-buggy-1:
-	rm -rf ./libgit-buggy-1-obj
-clean-libgit-patched-1:
-	rm -rf ./libgit-patched-1-obj
+test-redis-patched-1:
+	./redis_fix.sh
