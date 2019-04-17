@@ -89,8 +89,8 @@ muplay-curl-bugg-1:
 	echo "Needs to be implemented"
 
 clean-curl-buggy-1:
-	rm -rf ./curl
-	rm -rf ./curl-buggy-1-obj
+	rm -rf ./curl; \
+		rm -rf ./curl-buggy-1-obj
 clean-curl-patched-1:
 	rm -rf ./curl-patched-1-obj
 
@@ -163,8 +163,8 @@ muplay-curl-buggy-2:
 	echo TODO NEEDS TO BE IMPLEMENTED
 
 clean-curl-buggy-2:
-	rm -rf ./curl
-	rm -rf ./curl-buggy-2-obj
+	rm -rf ./curl; \
+		rm -rf ./curl-buggy-2-obj
 clean-curl-patched-2:
 	rm -rf ./curl-patched-2-obj
 
