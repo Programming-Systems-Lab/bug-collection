@@ -1197,10 +1197,16 @@ clone-sqlite:
 	if [ ! -d "./sqlite" ]; \
 		then git clone $(SQLITE_URL); \
 	fi
-SQLITE_BUG_1 = 64e780d3db07fb8c3e7861b086c34edba81ec89a 
-SQLITE_PATCH_1 = 59fa2969625bd593a601562e8416a6047f6f5142
 
-SQL_BUGGY_INPUT_1 = 
+clone-sqlite1:
+	if [ ! -d "./sqlite1" ]; \
+		then git clone $(SQLITE_URL) sqlite1; \
+	fi
+
+
+
+SQLITE_BUG_1 = 0ae3371797d89deb80f729e56c5af6851518e6bd
+SQLITE_PATCH_1 = b9338e8475463b29b7f05fb28c78c3f35a7ce814
 
 sqlite-buggy-1: clone-sqlite
 	cd ./sqlite; \
@@ -1211,24 +1217,26 @@ sqlite-buggy-1: clone-sqlite
 	../sqlite/configure --enable-debug; \
 	make -j8;
 
-sqlite-patched-1: clone-sqlite
-	cd ./sqlite; \
+sqlite-patched-1: clone-sqlite1
+	cd ./sqlite1; \
 	git checkout $(SQLITE_PATCH_1); \
 	../sqlscript.sh; \
 	cd ../; \
 	mkdir sqlite-patched-1-obj && cd sqlite-patched-1-obj; \
-	../sqlite/configure --enable-debug; \
+	../sqlite1/configure --enable-debug; \
 	make -j8;
 
 test-sqlite-buggy-1:
-	./sqlite-buggy-1-obj/sqlite3 $(CURL_BUGGY_INPUT_6)
+	./sqlite_bug_reproduce_1.sh
 
 test-sqlite-patched-1:
-	./sqlite-patched-1-obj/sqlite3 $(CURL_BUGGY_INPUT_6) 
+	./sqlite_bug_patch_1.sh
+
 clean-sqlite-buggy-1:
 	rm -r ./sqlite-buggy-1-obj;
 clean-sqlite-patched-1:
 	rm -r ./sqlite-patched-1-obj;
+
 
 # Redis Server Bug
 test-redis-buggy-1:
@@ -1236,4 +1244,3 @@ test-redis-buggy-1:
 
 test-redis-patched-1:
 	./redis_fix.sh
-
