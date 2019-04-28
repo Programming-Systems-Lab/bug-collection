@@ -1,0 +1,11 @@
+This bug is triggered under firefox 59.0.0.
+
+Starting with Firefox 59, the parameter which specifies your localized UI language setting is
+intl.locale.requested, type string
+
+- general.useragent.locale=de # German as an example
++ intl.locale.requested=de
+
+However, some systems with ubuntu-defaults-it , ubuntu-defaults-zh-cn and ubuntu-defaults-baltix packages installed don't have a line
+intl.locale.requested=""
+in /usr/lib/firefox/distribution/distribution.ini
