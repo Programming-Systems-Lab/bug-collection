@@ -311,19 +311,12 @@ curl-buggy-7:
 	cd ./curl-old; \
 	git checkout $(CURL_BUG_7); \
 	./buildconf; 
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-6-obj; \
-	make -j8; \
-	make install;
-
-
+	
 curl-patched-7: 
 	git clone https://github.com/curl/curl.git curl-new; \
 	cd ./curl-new; \
 	git checkout $(CURL_PATCH_7); \
 	./buildconf; 
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-6-obj; \
-	make -j8; \
-	make install;
 
 test-curl-buggy-7:
 	mkdir test-result-curl; \
