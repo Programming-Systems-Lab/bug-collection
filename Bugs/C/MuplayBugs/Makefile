@@ -494,6 +494,46 @@ clean-curl-11:
         rm -rf ./curl-new; \
         rm -rf ./test-result-curl
 
+# Curl Bug #12
+# https://curl.haxx.se/docs/CVE-2016-8624.html
+# curl doesn't parse the authority component of the URL correctly when the host name part ends 
+# with a '#' character, and could instead be tricked into connecting to a different host. This may 
+# have security implications if you for example use a URL parser that follows the RFC to check for 
+# allowed domains before using curl to request them.
+# Passing in http://example.com#@evil.com/x.txt would wrongly make curl send a request to evil.com
+# while your browser would connect to example.com given the same URL.
+
+CURL_BUG_12 = 164ee10b0
+CURL_PATCH_12 = 3bb273db7
+
+curl-buggy-12:
+	git clone https://github.com/curl/curl.git curl-old; \
+        cd ./curl-old; \
+        git checkout $(CURL_BUG_12); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+curl-patched-12:
+	git clone https://github.com/curl/curl.git curl-new; \
+        cd ./curl-new; \
+        git checkout $(CURL_PATCH_12); \
+        ./buildconf; \
+	./configure; \
+	make -j8
+
+test-curl-buggy-12:
+	cd ./curl-old; \
+	./src/curl -v http://example.com#@127.0.0.1/x.txt
+
+test-curl-patched-12:
+	cd ./curl-new; \
+        ./src/curl -v http://example.com#@127.0.0.1/x.txt
+
+clean-curl-12:
+	rm -rf ./curl-old; \
+        rm -rf ./curl-new; \
+        rm -rf ./test-result-curl
 
 # libpng Bug #1
 # https://bugzilla.redhat.com/show_bug.cgi?id=1599943
@@ -1239,8 +1279,33 @@ clean-sqlite-patched-1:
 
 
 # Redis Server Bug
+redis-buggy-1:
+	git clone https://github.com/antirez/redis.git redis_bug_1; \
+		cd redis_bug_1;\
+		git checkout 46a51cdc; \
+		make -j8;
+
+redis-patched-1:
+	git clone https://github.com/antirez/redis.git redis_fix_1; \
+		cd redis_fix_1;\
+		git checkout e2c1f80b;\
+		make -j8;
+
 test-redis-buggy-1:
 	./redis_bug.sh
 
 test-redis-patched-1:
 	./redis_fix.sh
+
+clean-redis-buggy-1:
+	rm bug_pipe; \
+		rm bug_server.sh; \
+		rm -rf redis_bug_1; \
+		rm result;
+
+clean-redis-patched-1:
+	rm fix_pipe;\
+		rm fix_server.sh;\
+		rm -rf redis_fix_1;\
+		rm result;
+	
