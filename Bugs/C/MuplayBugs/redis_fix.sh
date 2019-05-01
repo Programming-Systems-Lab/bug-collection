@@ -1,5 +1,3 @@
-git clone https://github.com/antirez/redis.git redis_fix_1
-cd redis_fix_1 && git checkout e2c1f80b && make -j8 && cd ..
 echo "redis_fix_1/src/redis-server > /dev/null &" > fix_server.sh
 echo "server=\$!" >> fix_server.sh
 echo "wait \$server" >> fix_server.sh
@@ -26,7 +24,3 @@ else
   echo "redis-server is running normally";
 fi
 kill -9 $(ps ax | grep -v "grep" | grep "sleep 3600" | awk '{print $1}')
-rm fix_pipe
-rm fix_server.sh
-rm -rf redis_fix_1
-rm result
