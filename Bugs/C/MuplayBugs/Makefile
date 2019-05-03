@@ -664,7 +664,7 @@ wc-buggy-1: clone-coreutils
 				cd ./coreutils-wc-bug1; \
 				git checkout $(WC_BUG_1); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 wc-patch-1: clone-coreutils
@@ -672,7 +672,7 @@ wc-patch-1: clone-coreutils
 				cd ./coreutils-wc-patch1; \
 				git checkout $(WC_PATCH_1); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 test-wc-buggy-1:
@@ -698,7 +698,7 @@ wc-buggy-2: clone-coreutils
 				cd ./coreutils-wc-bug2; \
 				git checkout $(WC_BUG_2); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 wc-patch-2: clone-coreutils
@@ -706,7 +706,7 @@ wc-patch-2: clone-coreutils
 				cd ./coreutils-wc-patch2; \
 				git checkout $(WC_PATCH_2); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 test-wc-buggy-2:
@@ -754,7 +754,7 @@ yes-buggy-1: clone-coreutils
 		cd ./coreutils-yes-bug1; \
 		git checkout $(YES_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 yes-patch-1: clone-coreutils
@@ -762,7 +762,7 @@ yes-patch-1: clone-coreutils
 		cd ./coreutils-yes-patch1; \
 		git checkout $(YES_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-yes-buggy-1:
@@ -790,7 +790,7 @@ shred-buggy-1: clone-coreutils
 		cd ./coreutils-shred-bug1; \
 		git checkout $(SHRED_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8
 
 shred-patch-1: clone-coreutils
@@ -798,7 +798,7 @@ shred-patch-1: clone-coreutils
 		cd ./coreutils-shred-patch1; \
 		git checkout $(SHRED_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8
 
 test-shred-buggy-1:
@@ -827,7 +827,7 @@ ls-buggy-1: clone-coreutils
 		cd coreutils-ls-bug1; \
 		git checkout $(LS_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 ls-patch-1: clone-coreutils
@@ -835,7 +835,7 @@ ls-patch-1: clone-coreutils
 		cd coreutils-ls-patch1; \
 		git checkout $(LS_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-ls-buggy-1:
@@ -855,15 +855,6 @@ clean-ls-patch-1:
 	rm -rf ./coreutils-ls-patch1
 
 # CP Bugs
-# cp bug1: 
-# $ ln -s self self
-# $ cat self 
-# self: Too many levels of symbolic links
-# $ touch a
-# $ cp a self 
-# cp: failed to access 'self': Too many levels of symbolic links
-# $ cp -f a self 
-# cp: failed to access 'self': Too many levels of symbolic links
 #
 # Fix: Don't fail immediately upon
 # getting ELOOP when running stat() on the destination,
@@ -876,35 +867,52 @@ clean-ls-patch-1:
 # all links that can't be traversed
 # 'cp --force file symlink' now removes the symlink even if
 #  it is self referential
-CP_BUG_1 = d3daa95096e2692e5c8a0402e270b0e2ec7918e5
-CP_PATCH_1 = c732388fa1a47376c28bc4a55eadd73944ab711d
+CP_BUG_1 = 694d10b71e418ef4ea68847185b73544fe03eae2
+CP_PATCH_1 = a391007511cebe4a1731d85b4808499293c67173
+CP_PATCH_2 = c732388fa1a47376c28bc4a55eadd73944ab711d
 
 cp-buggy-1: clone-coreutils
-	mv coreutils coreutils-cp-bug1; \
-		cd coreutils-cp-bug1; \
+	mv coreutils coreutils-cp-buggy1; \
+		cd coreutils-cp-buggy1; \
 		git checkout $(CP_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
-cp-patch-1: clone-coreutils
-	mv coreutils coreutils-cp-patch1; \
-		cd coreutils-cp-patch1; \
+cp-patched-1: clone-coreutils
+	mv coreutils coreutils-cp-patched1; \
+		cd coreutils-cp-patched1; \
 		git checkout $(CP_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
+		make -j8;
+
+cp-patched-2: clone-coreutils
+	mv coreutils coreutils-cp-patched2; \
+		cd coreutils-cp-patched2; \
+		git checkout $(CP_PATCH_2); \
+		./bootstrap; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-cp-buggy-1: 
-	cd coreutils-cp-bug1; \
+	cd coreutils-cp-buggy1; \
 		ln -s self self; \
 		cat self; \
 		touch a; \
 		./src/cp a self; \
 		./src/cp -f a self;
 
-test-cp-patch-1:
-	cd coreutils-cp-patch1; \
+test-cp-patched-1:
+	cd coreutils-cp-patched1; \
+		ln -s self self; \
+		cat self; \
+		touch a; \
+		./src/cp a self; \
+		./src/cp -f a self;
+
+test-cp-patched-2:
+	cd coreutils-cp-patched2; \
 		ln -s self self; \
 		cat self; \
 		touch a; \
@@ -912,11 +920,13 @@ test-cp-patch-1:
 		./src/cp -f a self;
 
 clean-cp-buggy-1:
-	rm -rf ./coreutils-cp-bug1
+	rm -rf ./coreutils-cp-buggy1
 
-clean-cp-patch-1:
-	rm -rf ./coreutils-cp-patch1
+clean-cp-patched-1:
+	rm -rf ./coreutils-cp-patched1
 
+clean-cp-patched-2:
+	rm -rf ./coreutils-cp-patched2
 # MV Bugs:
 # mv bug1:
 #
@@ -932,7 +942,7 @@ mv-buggy-1: clone-coreutils
 		cd coreutils-mv-bug1; \
 		git checkout $(MV_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 mv-patch-1: clone-coreutils
@@ -940,7 +950,7 @@ mv-patch-1: clone-coreutils
 		cd coreutils-mv-patch1; \
 		git checkout $(MV_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 # mv -n -u should not overwrite b, but due to race condition sometimes it does since a is newer than b
@@ -978,7 +988,7 @@ df-buggy-1: clone-coreutils
 		cd coreutils-df-bug1; \
 		git checkout $(DF_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 df-patch-1: clone-coreutils
@@ -986,7 +996,7 @@ df-patch-1: clone-coreutils
 		cd coreutils-df-patch1; \
 		git checkout $(DF_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-df-buggy-1:
@@ -1016,7 +1026,7 @@ bs-buggy-1: clone-coreutils
 		cd coreutils-bs-bug1; \
 		git checkout $(BS_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 bs-patch-1: clone-coreutils
@@ -1024,7 +1034,7 @@ bs-patch-1: clone-coreutils
 		cd coreutils-bs-patch1; \
 		git checkout $(BS_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-bs-buggy-1:
