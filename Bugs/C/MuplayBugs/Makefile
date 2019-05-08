@@ -1319,3 +1319,58 @@ clean-redis-patched-1:
 		rm -rf redis_fix_1;\
 		rm result;
 	
+
+# Firefox Bug
+
+# Firefox-bug-1 
+# Description: pdf.js: £ instead of space
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1157493
+
+firefox-buggy-1:
+	wget https://ftp.mozilla.org/pub/firefox/releases/37.0/linux-x86_64/en-US/firefox-37.0.tar.bz2; \
+	mkdir firefox-37
+	tar -xvf firefox-37.0.tar.bz2 -C firefox-37; \
+
+firefox-patched-1:
+	wget https://ftp.mozilla.org/pub/firefox/releases/40.0/linux-x86_64/en-US/firefox-40.0.tar.bz2; \
+	mkdir firefox-40
+	tar -xvf firefox-40.0.tar.bz2 -C firefox-40;
+
+test-firefox-buggy-1:
+	./firefox-37/firefox/firefox --new-window http://linsenraum.de/documents/ErkanYanar-iX-Docker-Opentstack.pdf
+
+test-firefox-patched-1:
+	./firefox-40/firefox/firefox --new-window http://linsenraum.de/documents/ErkanYanar-iX-Docker-Opentstack.pdf
+
+clean-firefox-1:
+	rm -rf firefox-37; \
+	rm -rf firefox-40; \
+	rm firefox-37.0.tar.bz2; \
+	rm firefox-40.0.tar.bz2;
+
+
+# Firefox-bug-2
+# Description: Spaces in diagrams showing up as (?) in Texas Instruments datasheet (INA209)
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1174195
+
+firefox-buggy-2:
+	wget https://ftp.mozilla.org/pub/firefox/releases/38.0/linux-x86_64/en-US/firefox-38.0.tar.bz2; \
+	mkdir firefox-38
+	tar -xvf firefox-38.0.tar.bz2 -C firefox-38; \
+
+firefox-patched-2:
+	wget https://ftp.mozilla.org/pub/firefox/releases/50.0/linux-x86_64/en-US/firefox-50.0.tar.bz2; \
+	mkdir firefox-50
+	tar -xvf firefox-50.0.tar.bz2 -C firefox-50;
+
+test-firefox-buggy-2:
+	./firefox-38/firefox/firefox --new-window http://www.ti.com.cn/cn/lit/ds/symlink/ina209.pdf
+
+test-firefox-patched-2:
+	./firefox-50/firefox/firefox --new-window http://www.ti.com.cn/cn/lit/ds/symlink/ina209.pdf
+
+clean-firefox-2:
+	rm -rf firefox-38; \
+	rm -rf firefox-50; \
+	rm firefox-38.0.tar.bz2; \
+	rm firefox-50.0.tar.bz2;
