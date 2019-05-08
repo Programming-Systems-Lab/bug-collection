@@ -89,9 +89,10 @@ muplay-curl-bugg-1:
 	echo "Needs to be implemented"
 
 clean-curl-buggy-1:
-	rm -r ./curl-buggy-1-obj
+	rm -rf ./curl; \
+		rm -rf ./curl-buggy-1-obj
 clean-curl-patched-1:
-	rm -r ./curl-patched-1-obj
+	rm -rf ./curl-patched-1-obj
 
 
 # Curl Bug #2 Works with the following pull request and patch
@@ -141,7 +142,7 @@ test-curl-buggy-2: test-curl-buggy-2-after
 clear:
 	rm curl-7.63.0.tar.xz.asc
 
-test-curl-patched-2-before:clearr
+test-curl-patched-2-before:clear
 	./curl-patched-2-obj/bin/curl $(CURL_BUGGY_INPUT_2)
 
 check-size2-before: test-curl-patched-2-before
@@ -162,9 +163,10 @@ muplay-curl-buggy-2:
 	echo TODO NEEDS TO BE IMPLEMENTED
 
 clean-curl-buggy-2:
-	rm -r ./curl-buggy-2-obj
+	rm -rf ./curl; \
+		rm -rf ./curl-buggy-2-obj
 clean-curl-patched-2:
-	rm -r ./curl-patched-2-obj
+	rm -rf ./curl-patched-2-obj
 
 # Curl Bug #4 -- Security Vulnerability
 # Patch applied here: https://github.com/curl/curl/commit/d530e92f59ae9bb2d47066c3c460b25d2ffeb211
@@ -492,7 +494,6 @@ clean-curl-11:
         rm -rf ./curl-new; \
         rm -rf ./test-result-curl
 
-
 # Curl Bug #12
 # https://curl.haxx.se/docs/CVE-2016-8624.html
 # curl doesn't parse the authority component of the URL correctly when the host name part ends 
@@ -533,6 +534,86 @@ clean-curl-12:
 	rm -rf ./curl-old; \
         rm -rf ./curl-new; \
         rm -rf ./test-result-curl
+
+# libpng Bug #1
+# https://bugzilla.redhat.com/show_bug.cgi?id=1599943
+# Bug 1599943 (CVE-2018-13785) - CVE-2018-13785 libpng: 
+# Integer overflow and resultant divide-by-zero in
+# pngrutil.c:png_check_chunk_length() allows for denial
+# of service
+
+LIBPNG_BUG_1 = cde1e1fe79974a37d7ef255a44dae3bfd1b34a0f
+LIBPNG_PATCH_1 = 8a05766cb74af05c04c53e6c9d60c13fc4d59bf2
+
+libpng-buggy-1:
+	git clone https://github.com/glennrp/libpng.git libpng-buggy; \
+        cd ./libpng-buggy; \
+        git checkout $(LIBPNG_BUG_1); \
+        sed -i 's/return ((int)(crc != png_ptr->crc));/return (0);/g' pngrutil.c; \
+	autoreconf -f -i; \
+	./configure --disable-shared; \
+	make clean all check
+
+libpng-patched-1:
+	git clone https://github.com/glennrp/libpng.git libpng-fixed; \
+        cd ./libpng-fixed; \
+        git checkout $(LIBPNG_PATCH_1); \
+        sed -i 's/return ((int)(crc != png_ptr->crc));/return (0);/g' pngrutil.c; \
+	autoreconf -f -i; \
+	./configure --disable-shared; \
+	make clean all check
+
+test-libpng-buggy-1:
+	wget https://sourceforge.net/p/libpng/bugs/278/attachment/crash1.png; \
+	./libpng-buggy/pngimage crash1.png > result_buggy.txt 2>&1
+
+test-libpng-patched-1:
+	./libpng-fixed/pngimage crash1.png > result_fixed.txt 2>&1
+
+clean-libpng-1:
+	rm -rf ./libpng-buggy; \
+        rm -rf ./libpng-fixed; \
+        rm ./result_buggy.txt; \
+	rm ./result_fixed.txt
+
+
+
+# libpng Bug #2
+# https://sourceforge.net/p/libpng/bugs/270/
+# libpng-1.6.32 rejects valid PNG images with "IDAT: chunk data is too large"
+
+LIBPNG_BUG_2 = 47aa798
+LIBPNG_PATCH_2 = eb2f42a
+
+libpng-buggy-2:
+	git clone https://github.com/glennrp/libpng.git libpng-buggy; \
+        cd ./libpng-buggy; \
+        git checkout $(LIBPNG_BUG_2); \
+	autoreconf -f -i; \
+	./configure; \
+	make
+
+libpng-patched-2:
+	git clone https://github.com/glennrp/libpng.git libpng-fixed; \
+        cd ./libpng-fixed; \
+        git checkout $(LIBPNG_PATCH_2); \
+	autoreconf -f -i; \
+	./configure; \
+	make
+
+test-libpng-buggy-2:
+	wget https://raw.githubusercontent.com/Programming-Systems-Lab/bug-collection/reproduce-curl-bug-script/Bugs/C/MuplayBugs/idat_too_large.png?token=Aovwu1XD_3CUlb7duUiobzO-yo8btoRTks5cvlMHwA%3D%3D -O idat_too_large.png; \
+	./libpng-buggy/pngimage idat_too_large.png > result_buggy.txt 2>&1;
+
+test-libpng-patched-2:
+	./libpng-fixed/pngimage idat_too_large.png > result_fixed.txt 2>&1;
+
+clean-libpng-2:
+	rm -rf ./libpng-buggy; \
+        rm -rf ./libpng-fixed; \
+        rm ./result_buggy.txt; \
+	rm ./result_fixed.txt
+
 
 
 #OpenSSL Bug #1 -- Potential Use after free vulnerability
@@ -583,7 +664,7 @@ wc-buggy-1: clone-coreutils
 				cd ./coreutils-wc-bug1; \
 				git checkout $(WC_BUG_1); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 wc-patch-1: clone-coreutils
@@ -591,7 +672,7 @@ wc-patch-1: clone-coreutils
 				cd ./coreutils-wc-patch1; \
 				git checkout $(WC_PATCH_1); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 test-wc-buggy-1:
@@ -617,7 +698,7 @@ wc-buggy-2: clone-coreutils
 				cd ./coreutils-wc-bug2; \
 				git checkout $(WC_BUG_2); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 wc-patch-2: clone-coreutils
@@ -625,7 +706,7 @@ wc-patch-2: clone-coreutils
 				cd ./coreutils-wc-patch2; \
 				git checkout $(WC_PATCH_2); \
 				./bootstrap; \
-				./configure --quiet; \
+				./configure --disable-gcc-warnings --quiet; \
 				make -j8;
 
 test-wc-buggy-2:
@@ -673,7 +754,7 @@ yes-buggy-1: clone-coreutils
 		cd ./coreutils-yes-bug1; \
 		git checkout $(YES_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 yes-patch-1: clone-coreutils
@@ -681,7 +762,7 @@ yes-patch-1: clone-coreutils
 		cd ./coreutils-yes-patch1; \
 		git checkout $(YES_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-yes-buggy-1:
@@ -709,7 +790,7 @@ shred-buggy-1: clone-coreutils
 		cd ./coreutils-shred-bug1; \
 		git checkout $(SHRED_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8
 
 shred-patch-1: clone-coreutils
@@ -717,7 +798,7 @@ shred-patch-1: clone-coreutils
 		cd ./coreutils-shred-patch1; \
 		git checkout $(SHRED_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8
 
 test-shred-buggy-1:
@@ -746,7 +827,7 @@ ls-buggy-1: clone-coreutils
 		cd coreutils-ls-bug1; \
 		git checkout $(LS_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 ls-patch-1: clone-coreutils
@@ -754,7 +835,7 @@ ls-patch-1: clone-coreutils
 		cd coreutils-ls-patch1; \
 		git checkout $(LS_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-ls-buggy-1:
@@ -774,15 +855,6 @@ clean-ls-patch-1:
 	rm -rf ./coreutils-ls-patch1
 
 # CP Bugs
-# cp bug1: 
-# $ ln -s self self
-# $ cat self 
-# self: Too many levels of symbolic links
-# $ touch a
-# $ cp a self 
-# cp: failed to access 'self': Too many levels of symbolic links
-# $ cp -f a self 
-# cp: failed to access 'self': Too many levels of symbolic links
 #
 # Fix: Don't fail immediately upon
 # getting ELOOP when running stat() on the destination,
@@ -795,35 +867,52 @@ clean-ls-patch-1:
 # all links that can't be traversed
 # 'cp --force file symlink' now removes the symlink even if
 #  it is self referential
-CP_BUG_1 = d3daa95096e2692e5c8a0402e270b0e2ec7918e5
-CP_PATCH_1 = c732388fa1a47376c28bc4a55eadd73944ab711d
+CP_BUG_1 = 694d10b71e418ef4ea68847185b73544fe03eae2
+CP_PATCH_1 = a391007511cebe4a1731d85b4808499293c67173
+CP_PATCH_2 = c732388fa1a47376c28bc4a55eadd73944ab711d
 
 cp-buggy-1: clone-coreutils
-	mv coreutils coreutils-cp-bug1; \
-		cd coreutils-cp-bug1; \
+	mv coreutils coreutils-cp-buggy1; \
+		cd coreutils-cp-buggy1; \
 		git checkout $(CP_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
-cp-patch-1: clone-coreutils
-	mv coreutils coreutils-cp-patch1; \
-		cd coreutils-cp-patch1; \
+cp-patched-1: clone-coreutils
+	mv coreutils coreutils-cp-patched1; \
+		cd coreutils-cp-patched1; \
 		git checkout $(CP_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
+		make -j8;
+
+cp-patched-2: clone-coreutils
+	mv coreutils coreutils-cp-patched2; \
+		cd coreutils-cp-patched2; \
+		git checkout $(CP_PATCH_2); \
+		./bootstrap; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-cp-buggy-1: 
-	cd coreutils-cp-bug1; \
+	cd coreutils-cp-buggy1; \
 		ln -s self self; \
 		cat self; \
 		touch a; \
 		./src/cp a self; \
 		./src/cp -f a self;
 
-test-cp-patch-1:
-	cd coreutils-cp-patch1; \
+test-cp-patched-1:
+	cd coreutils-cp-patched1; \
+		ln -s self self; \
+		cat self; \
+		touch a; \
+		./src/cp a self; \
+		./src/cp -f a self;
+
+test-cp-patched-2:
+	cd coreutils-cp-patched2; \
 		ln -s self self; \
 		cat self; \
 		touch a; \
@@ -831,11 +920,13 @@ test-cp-patch-1:
 		./src/cp -f a self;
 
 clean-cp-buggy-1:
-	rm -rf ./coreutils-cp-bug1
+	rm -rf ./coreutils-cp-buggy1
 
-clean-cp-patch-1:
-	rm -rf ./coreutils-cp-patch1
+clean-cp-patched-1:
+	rm -rf ./coreutils-cp-patched1
 
+clean-cp-patched-2:
+	rm -rf ./coreutils-cp-patched2
 # MV Bugs:
 # mv bug1:
 #
@@ -851,7 +942,7 @@ mv-buggy-1: clone-coreutils
 		cd coreutils-mv-bug1; \
 		git checkout $(MV_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 mv-patch-1: clone-coreutils
@@ -859,7 +950,7 @@ mv-patch-1: clone-coreutils
 		cd coreutils-mv-patch1; \
 		git checkout $(MV_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 # mv -n -u should not overwrite b, but due to race condition sometimes it does since a is newer than b
@@ -897,7 +988,7 @@ df-buggy-1: clone-coreutils
 		cd coreutils-df-bug1; \
 		git checkout $(DF_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 df-patch-1: clone-coreutils
@@ -905,7 +996,7 @@ df-patch-1: clone-coreutils
 		cd coreutils-df-patch1; \
 		git checkout $(DF_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-df-buggy-1:
@@ -935,7 +1026,7 @@ bs-buggy-1: clone-coreutils
 		cd coreutils-bs-bug1; \
 		git checkout $(BS_BUG_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 bs-patch-1: clone-coreutils
@@ -943,7 +1034,7 @@ bs-patch-1: clone-coreutils
 		cd coreutils-bs-patch1; \
 		git checkout $(BS_PATCH_1); \
 		./bootstrap; \
-		./configure --quiet; \
+		./configure --disable-gcc-warnings --quiet; \
 		make -j8;
 
 test-bs-buggy-1:
@@ -1156,10 +1247,16 @@ clone-sqlite:
 	if [ ! -d "./sqlite" ]; \
 		then git clone $(SQLITE_URL); \
 	fi
-SQLITE_BUG_1 = 64e780d3db07fb8c3e7861b086c34edba81ec89a 
-SQLITE_PATCH_1 = 59fa2969625bd593a601562e8416a6047f6f5142
 
-SQL_BUGGY_INPUT_1 = 
+clone-sqlite1:
+	if [ ! -d "./sqlite1" ]; \
+		then git clone $(SQLITE_URL) sqlite1; \
+	fi
+
+
+
+SQLITE_BUG_1 = 0ae3371797d89deb80f729e56c5af6851518e6bd
+SQLITE_PATCH_1 = b9338e8475463b29b7f05fb28c78c3f35a7ce814
 
 sqlite-buggy-1: clone-sqlite
 	cd ./sqlite; \
@@ -1170,29 +1267,110 @@ sqlite-buggy-1: clone-sqlite
 	../sqlite/configure --enable-debug; \
 	make -j8;
 
-sqlite-patched-1: clone-sqlite
-	cd ./sqlite; \
+sqlite-patched-1: clone-sqlite1
+	cd ./sqlite1; \
 	git checkout $(SQLITE_PATCH_1); \
 	../sqlscript.sh; \
 	cd ../; \
 	mkdir sqlite-patched-1-obj && cd sqlite-patched-1-obj; \
-	../sqlite/configure --enable-debug; \
+	../sqlite1/configure --enable-debug; \
 	make -j8;
 
 test-sqlite-buggy-1:
-	./sqlite-buggy-1-obj/sqlite3 $(CURL_BUGGY_INPUT_6)
+	./sqlite_bug_reproduce_1.sh
 
 test-sqlite-patched-1:
-	./sqlite-patched-1-obj/sqlite3 $(CURL_BUGGY_INPUT_6) 
+	./sqlite_bug_patch_1.sh
+
 clean-sqlite-buggy-1:
 	rm -r ./sqlite-buggy-1-obj;
 clean-sqlite-patched-1:
 	rm -r ./sqlite-patched-1-obj;
 
+
 # Redis Server Bug
+redis-buggy-1:
+	git clone https://github.com/antirez/redis.git redis_bug_1; \
+		cd redis_bug_1;\
+		git checkout 46a51cdc; \
+		make -j8;
+
+redis-patched-1:
+	git clone https://github.com/antirez/redis.git redis_fix_1; \
+		cd redis_fix_1;\
+		git checkout e2c1f80b;\
+		make -j8;
+
 test-redis-buggy-1:
 	./redis_bug.sh
 
 test-redis-patched-1:
 	./redis_fix.sh
 
+clean-redis-buggy-1:
+	rm bug_pipe; \
+		rm bug_server.sh; \
+		rm -rf redis_bug_1; \
+		rm result;
+
+clean-redis-patched-1:
+	rm fix_pipe;\
+		rm fix_server.sh;\
+		rm -rf redis_fix_1;\
+		rm result;
+	
+
+# Firefox Bug
+
+# Firefox-bug-1 
+# Description: pdf.js: £ instead of space
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1157493
+
+firefox-buggy-1:
+	wget https://ftp.mozilla.org/pub/firefox/releases/37.0/linux-x86_64/en-US/firefox-37.0.tar.bz2; \
+	mkdir firefox-37
+	tar -xvf firefox-37.0.tar.bz2 -C firefox-37; \
+
+firefox-patched-1:
+	wget https://ftp.mozilla.org/pub/firefox/releases/40.0/linux-x86_64/en-US/firefox-40.0.tar.bz2; \
+	mkdir firefox-40
+	tar -xvf firefox-40.0.tar.bz2 -C firefox-40;
+
+test-firefox-buggy-1:
+	./firefox-37/firefox/firefox --new-window http://linsenraum.de/documents/ErkanYanar-iX-Docker-Opentstack.pdf
+
+test-firefox-patched-1:
+	./firefox-40/firefox/firefox --new-window http://linsenraum.de/documents/ErkanYanar-iX-Docker-Opentstack.pdf
+
+clean-firefox-1:
+	rm -rf firefox-37; \
+	rm -rf firefox-40; \
+	rm firefox-37.0.tar.bz2; \
+	rm firefox-40.0.tar.bz2;
+
+
+# Firefox-bug-2
+# Description: Spaces in diagrams showing up as (?) in Texas Instruments datasheet (INA209)
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1174195
+
+firefox-buggy-2:
+	wget https://ftp.mozilla.org/pub/firefox/releases/38.0/linux-x86_64/en-US/firefox-38.0.tar.bz2; \
+	mkdir firefox-38
+	tar -xvf firefox-38.0.tar.bz2 -C firefox-38; \
+
+firefox-patched-2:
+	wget https://ftp.mozilla.org/pub/firefox/releases/50.0/linux-x86_64/en-US/firefox-50.0.tar.bz2; \
+	mkdir firefox-50
+	tar -xvf firefox-50.0.tar.bz2 -C firefox-50;
+
+test-firefox-buggy-2:
+	./firefox-38/firefox/firefox --new-window http://www.ti.com.cn/cn/lit/ds/symlink/ina209.pdf
+
+test-firefox-patched-2:
+	./firefox-50/firefox/firefox --new-window http://www.ti.com.cn/cn/lit/ds/symlink/ina209.pdf
+
+clean-firefox-2:
+	rm -rf firefox-38; \
+	rm -rf firefox-50; \
+	rm firefox-38.0.tar.bz2; \
+	rm firefox-50.0.tar.bz2;
