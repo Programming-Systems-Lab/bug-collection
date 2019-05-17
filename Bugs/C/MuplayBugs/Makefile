@@ -2,7 +2,12 @@
 # And running the evaluation as well
 
 # TODO: add comments, find bugs for SQLite
-curl-debug:
+
+.PHONY: deploy check-env
+
+deploy: check-env
+
+curl-debug: check-env
 	git clone https://github.com/curl/curl.git; \
 	cd curl; \
 	./buildconf; \
@@ -51,25 +56,25 @@ CURL_PATCH_1 = d8607da1a68f2482302ccdbb7cf457210b9ccfc9
 # TODO find an input that triggers this bug
 CURL_BUGGY_INPUT_1 = [0:0:0:0:0:0:0:1]: #simply pings local host
 
-curl-buggy-1:
+curl-buggy-1: check-env
 	if [ ! -d "./curl" ]; \
 		then git clone $(CURL_URL); \
 	fi
 	cd ./curl; \
 	git checkout $(CURL_BUG_1); \
 	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-1-obj; \
+	./configure --enable-debug --prefix=${INSTALL_DIR}/curl-buggy-1-obj; \
 	make -j8; \
 	make install;
 
-curl-patched-1:
+curl-patched-1: check-env
 	if [ ! -d "./curl" ]; then \
 		git clone $(CURL_URL); \
 	fi
 	cd ./curl; \
 	git checkout $(CURL_PATCH_1); \
 	./buildconf; \
-	./configure --enable-debug --prefix=$$(pwd)/../curl-patched-1-obj; \
+	./configure --enable-debug --prefix=${INSTALL_DIR}/curl-patched-1-obj; \
 	make -j8; \
 	make install;
 
@@ -1318,4 +1323,10 @@ clean-redis-patched-1:
 		rm fix_server.sh;\
 		rm -rf redis_fix_1;\
 		rm result;
-	
+
+
+## Handles checking the environment variable
+check-env:
+ifndef INSTALL_DIR
+    $(error INSTALL_DIR is undefined)
+endif

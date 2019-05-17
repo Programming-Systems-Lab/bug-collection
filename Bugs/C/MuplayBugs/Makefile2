@@ -1,0 +1,4 @@
+# This is going to replace the original makefile
+# All of the logic is in the makefile_helper folder
+
+include make_helpers/config.mk
