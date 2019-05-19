@@ -168,49 +168,6 @@ clean-curl-buggy-2:
 clean-curl-patched-2:
 	rm -rf ./curl-patched-2-obj
 
-# Curl Bug #4 -- Security Vulnerability
-# Patch applied here: https://github.com/curl/curl/commit/d530e92f59ae9bb2d47066c3c460b25d2ffeb211
-# Needs a test case since one is not included -- another good example of type 1 in the design section
-
-# leave this first.
-CURL_BUG_4 = e97679a360dda4ea6188b09a145f73a2a84acedd
-CURL_PATCH_4 = d530e92f59ae9bb2d47066c3c460b25d2ffeb211
-
-CURL_BUGGY_INPUT_4 = www.gdsfjewnfpqnojodfsdfoggsgjoiaemfqoinfyibdsuabuicnsianuidfhihqowufhqownfqowufnqowfnqowfnqwoufnqouwnfoqwnfoqwnfqqnwfnqowfnqwuofnoqwnfoquwnfoqwnfqowfnfdsaclcdsadcasdfsadfegwwqweqwfqwsce.com 
-
-curl-buggy-4: clone-curl
-	mv ./curl ./curl-old; \
-		cd ./curl-old; \
-		git checkout $(CURL_BUG_4); \
-		./buildconf; \
-		./configure --enable-debug --prefix=$$(pwd)/../curl-buggy-4-obj; \
-		make -j8; \
-		make install;
-
-curl-patched-4: clone-curl
-	mv ./curl ./curl-new; \
-		cd ./curl-new; \
-		git checkout $(CURL_PATCH_4); \
-		./buildconf; \
-		./configure --enable-debug --prefix=$$(pwd)/../curl-patched-4-obj; \
-		make -j8; \
-		make install;
-
-test-curl-buggy-4:
-	./curl-buggy-4-obj/bin/curl $(CURL_BUGGY_INPUT_4) 2> a 
-
-test-curl-patched-4:
-	./curl-patched-4-obj/bin/curl $(CURL_BUGGY_INPUT_4) 2> b
-
-clean-curl-buggy-4:
-	rm -rf ./curl-old; \
-		rm -rf ./curl-buggy-4-obj;
-
-clean-curl-patched-4:
-	rm -rf ./curl-new; \
-		rm -rf ./curl-patched-4-obj;
-# Registered with CVE-2018-16842
-
 # Curl Bug #5 -- Security Vulnerability
 # Not noted where the patch is applied but test case is given and should exist somewhere in the git history
 #CVE-2017-1000101
