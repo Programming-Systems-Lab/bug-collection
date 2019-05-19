@@ -66,9 +66,9 @@ create-output-file:curl-buggy-2-exe-exist clear-output-file
 
 record-curl-buggy-2: curl-buggy-2-exe-exist create-output-file
 	_RR_TRACE_DIR=${_RR_TRACE_DIR}/curl-buggy-2 \
-	${RR} record ${INSTALL_DIR}/curl-buggy-1-obj/bin/curl ${CURL_BUGGY_INPUT_2}
+	${RR} record ${INSTALL_DIR}/curl-buggy-2-obj/bin/curl ${CURL_BUGGY_INPUT_2}
 	
-muplay-curl-buggy-2: curl-buggy-2-exe-exist curl-patched-2-exe-exist create-output-file
+muplay-curl-buggy-2: curl-buggy-2-exe-exist curl-patched-2-exe-exist create-output-file curl-buggy-2-patchfile
 	${RR} muplay ${_RR_TRACE_DIR}/curl-buggy-2/curl-0 ${BUILD_DIR}/curl-buggy-2-obj ${BUILD_DIR}/curl-patched-2-obj
 
 clean-curl-buggy-2:

@@ -4,3 +4,6 @@
 include make_helpers/config.mk
 include make_helpers/curl-1.mk
 include make_helpers/curl-2.mk
+include make_helpers/curl-4.mk
+include make_helpers/curl-5.mk
+include make_helpers/curl-6.mk
