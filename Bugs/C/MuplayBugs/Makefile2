@@ -2,3 +2,5 @@
 # All of the logic is in the makefile_helper folder
 
 include make_helpers/config.mk
+include make_helpers/curl-1.mk
+include make_helpers/curl-2.mk

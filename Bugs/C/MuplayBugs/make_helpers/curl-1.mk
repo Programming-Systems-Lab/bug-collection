@@ -1,15 +1,7 @@
 ## This is the makefile that handles all of curl bulids 
-include config.mk
+include clone-prog.mk
 
 .PHONY: clean-curl-buggy-1 clean-curl-patched-1 record-curl-buggy-1 muplay-buggy-1 test-curl-buggy-1 test-curl-patched-1
-
-#builds the buggy version of curl
-CURL_URL =  https://github.com/curl/curl.git
-
-clone-curl: make-dirs
-	if [ ! -d "${CLONE_DIR}/curl" ]; \
-        then cd ${CLONE_DIR} && git clone $(CURL_URL); \
-    fi
 
 # Bug 1
 
@@ -53,9 +45,10 @@ test-curl-patched-1: curl-patched-1-exe-exist
 # add check for successful request here
 
 curl-buggy-1-patchfile: 
-	test -s ${CLONE_DIR}/curl || { echo "ERROR: curl repo doesn't exist"; exit 1; } \
+	test -s ${CLONE_DIR}/curl || { echo "ERROR: curl repo doesn't exist"; exit 1; }; \
 	cd ${CLONE_DIR}/curl; \
 	git diff ${CURL_BUG_1} ${CURL_PATCH_1} > ${PATCH_FILE_DIR}/curl-bug-1.patch
+
 
 record-curl-buggy-1: curl-buggy-1-exe-exist
 	_RR_TRACE_DIR=${_RR_TRACE_DIR}/curl-buggy-1 \

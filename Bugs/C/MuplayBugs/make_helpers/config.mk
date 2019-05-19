@@ -7,7 +7,7 @@ INSTALL_DIR ?= ${BUGS_DIR}/obj
 RR ?= /home/ant/rr_muplay/obj/bin/rr
 _RR_TRACE_DIR ?= /home/ant/rr_muplay/traces
 PATCH_FILE_DIR ?= ${BUGS_DIR}/patch_files
-
+EXTRA_FILE_DIR ?= ${BUGS_DIR}/extra
 .PHONY = make-dirs
 make-dirs:
 	if [ ! -d "${BUGS_DIR}" ]; \
@@ -28,4 +28,8 @@ make-dirs:
 	
 	if [ ! -d "${PATCH_FILE_DIR}" ]; \
         then mkdir -p ${PATCH_FILE_DIR} ; \
+	fi
+	
+	if [ ! -d "${EXTRA_FILE_DIR}" ]; \
+        then mkdir -p ${EXTRA_FILE_DIR} ; \
 	fi
